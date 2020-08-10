@@ -9,10 +9,26 @@ urlpatterns = [
     path("<int:pk>/", views.test_view, name='tes-view')
 ]
 
+prefix = "ta2/api/"
 
 urlpatterns += [
-    path("try/api/teacher/", views_generics.CreateView_Teacher.as_view()),
-    path("try/api/teacher/<int:pk>/", views_generics.DetailsView_Teacher.as_view()),
-    path("try/api/validslot/",views_generics.CreateView_ValidSlot.as_view()),
-    path("try/api/validslot/<int:pk>", views_generics.DetailsView_ValidSlot.as_view()),
+    path("{}teacher/".format(prefix), views_generics.CreateView_Teacher.as_view()),
+    path(
+        "{}teacher/<int:pk>/".format(prefix),
+        views_generics.DetailsView_Teacher.as_view(),
+    ),
+    path("{}validslot/".format(prefix), views_generics.CreateView_ValidSlot.as_view()),
+    path(
+        "{}validslot/<int:pk>".format(prefix),
+        views_generics.DetailsView_ValidSlot.as_view(),
+    ),
+    path("{}validslot/day/<int:day>/".format(prefix), views_generics.validslot__day),
+    path(
+        "{}availableslot/".format(prefix),
+        views_generics.CreateView_AvailableSlot.as_view(),
+    ),
+    path(
+        "{}availableslot/<int:teacher_id>/<int:day>/".format(prefix),
+        views_generics.availableslot___teacher_id__validslot_day,
+    ),
 ]

@@ -10,6 +10,22 @@ from .serializers import TeacherSerializer, AvailableSlotSerializer, ValidSlotSe
 from .models import Teacher, AvailableSlot, ValidSlot
 
 
+@api_view(["GET"])
+def validslot__day(request, day):
+    objs = ValidSlot.objects.filter(day=day)
+    serializer = ValidSlotSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def availableslot___teacher_id__validslot_day(request, teacher_id, day):
+    objs = AvailableSlot.objects.filter(
+        teacher_id__id=teacher_id, validslot_id__day=day
+    )
+    serializer = AvailableSlotSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
 class CreateView_Teacher(generics.ListCreateAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
@@ -21,6 +37,14 @@ class CreateView_Teacher(generics.ListCreateAPIView):
 class CreateView_ValidSlot(generics.ListCreateAPIView):
     queryset = ValidSlot.objects.all()
     serializer_class = ValidSlotSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class CreateView_AvailableSlot(generics.ListCreateAPIView):
+    queryset = AvailableSlot.objects.all()
+    serializer_class = AvailableSlotSerializer
 
     def perform_create(self, serializer):
         serializer.save()

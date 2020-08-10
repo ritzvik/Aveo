@@ -18,6 +18,13 @@ def validslot__day(request, day):
 
 
 @api_view(["GET"])
+def availableslot___teacher_id(request, teacher_id):
+    objs = AvailableSlot.objects.filter(teacher_id__id=teacher_id)
+    serializer = AvailableSlotSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
 def availableslot___teacher_id__validslot_day(request, teacher_id, day):
     objs = AvailableSlot.objects.filter(
         teacher_id__id=teacher_id, validslot_id__day=day

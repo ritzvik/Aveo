@@ -6,7 +6,7 @@ urlpatterns = [
     path("ta/api/teacher/", views.get_teachers_list, name="get-teacher_list"),
     path("ta/api/teacher/add/", views.add_teacher, name="add-teacher"),
     path("ta/api/teacher/<int:pk>/", views.get_teacher, name="get-teacher"),
-    path("<int:pk>/", views.test_view, name='tes-view')
+    path("<int:pk>/", views.test_view, name="tes-view"),
 ]
 
 prefix = "ta2/api/"
@@ -26,6 +26,10 @@ urlpatterns += [
     path(
         "{}availableslot/".format(prefix),
         views_generics.CreateView_AvailableSlot.as_view(),
+    ),
+    path(
+        "{}availableslot/<int:teacher_id>/".format(prefix),
+        views_generics.availableslot___teacher_id,
     ),
     path(
         "{}availableslot/<int:teacher_id>/<int:day>/".format(prefix),

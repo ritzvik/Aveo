@@ -1,9 +1,38 @@
 from django.urls import path
 from . import views
+from . import views_generics
 
 urlpatterns = [
     path("ta/api/teacher/", views.get_teachers_list, name="get-teacher_list"),
     path("ta/api/teacher/add/", views.add_teacher, name="add-teacher"),
     path("ta/api/teacher/<int:pk>/", views.get_teacher, name="get-teacher"),
-    path("<int:pk>/", views.test_view, name='tes-view')
+    path("<int:pk>/", views.test_view, name="tes-view"),
+]
+
+prefix = "ta2/api/"
+
+urlpatterns += [
+    path("{}teacher/".format(prefix), views_generics.CreateView_Teacher.as_view()),
+    path(
+        "{}teacher/<int:pk>/".format(prefix),
+        views_generics.DetailsView_Teacher.as_view(),
+    ),
+    path("{}validslot/".format(prefix), views_generics.CreateView_ValidSlot.as_view()),
+    path(
+        "{}validslot/<int:pk>".format(prefix),
+        views_generics.DetailsView_ValidSlot.as_view(),
+    ),
+    path("{}validslot/day/<int:day>/".format(prefix), views_generics.validslot__day),
+    path(
+        "{}availableslot/".format(prefix),
+        views_generics.CreateView_AvailableSlot.as_view(),
+    ),
+    path(
+        "{}availableslot/<int:teacher_id>/".format(prefix),
+        views_generics.availableslot___teacher_id,
+    ),
+    path(
+        "{}availableslot/<int:teacher_id>/<int:day>/".format(prefix),
+        views_generics.availableslot___teacher_id__validslot_day,
+    ),
 ]

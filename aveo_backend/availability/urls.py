@@ -28,11 +28,15 @@ urlpatterns += [
         views_generics.CreateView_AvailableSlot.as_view(),
     ),
     path(
-        "{}availableslot/<int:teacher_id>/".format(prefix),
+        "{}availableslot/<int:pk>/".format(prefix),
+        views_generics.DetailsView_AvailableSlot.as_view(),
+    ),
+    path(
+        "{}availableslot/tid/<int:teacher_id>/".format(prefix),
         views_generics.availableslot___teacher_id,
     ),
     path(
-        "{}availableslot/<int:teacher_id>/<int:day>/".format(prefix),
+        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day,
     ),
 ]

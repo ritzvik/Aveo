@@ -65,3 +65,8 @@ class DetailsView_Teacher(generics.RetrieveUpdateDestroyAPIView):
 class DetailsView_ValidSlot(generics.RetrieveUpdateDestroyAPIView):
     queryset = ValidSlot.objects.all()
     serializer_class = ValidSlotSerializer
+
+
+class DetailsView_AvailableSlot(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AvailableSlot.objects.all()
+    serializer_class = AvailableSlotSerializer

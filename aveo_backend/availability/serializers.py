@@ -10,9 +10,11 @@ class TeacherSerializer(serializers.ModelSerializer):
 
 class ValidSlotSerializer(serializers.ModelSerializer):
     class Meta:
-        pass
+        model = ValidSlot
+        fields = "__all__"
 
 
 class AvailableSlotSerializer(serializers.ModelSerializer):
     class Meta:
-        pass
+        model = AvailableSlot
+        fields = "__all__"

@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import TeacherSerializer
-from .models import Teacher
+from .serializers import TeacherSerializer, AvailableSlotSerializer
+from .models import Teacher, AvailableSlot, ValidSlot
 
 
 # APIs For teachers table
@@ -28,4 +28,11 @@ def get_teacher(request, pk):
     serializer = TeacherSerializer(teacher, many=False)
     return Response(serializer.data)
 
+
+@api_view(["GET"])
+def test_view(request, pk):
+    teacher = Teacher.objects.get(id=pk)
+    slots = teacher.availableslot_set.all()
+    serializer = AvailableSlotSerializer(slots, many=True)
+    return Response(serializer.data)
 

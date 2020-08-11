@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import views_generics
+from . import views_test
 
 urlpatterns = [
     path("ta/api/teacher/", views.get_teachers_list, name="get-teacher_list"),
@@ -36,11 +37,12 @@ urlpatterns += [
         views_generics.availableslot___teacher_id,
     ),
     path(
-        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>".format(prefix),
+        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day,
     ),
     path(
-        "{}test/".format(prefix),
-        views_generics.test,
+        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>".format(prefix),
+        views_generics.availableslot___teacher_id__validslot_day__date,
     ),
+    path("{}test/".format(prefix), views_test.test,),
 ]

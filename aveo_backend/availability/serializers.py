@@ -8,7 +8,7 @@ class TeacherSerializer(serializers.ModelSerializer):
         fields = ("id", "first_name", "last_name")
 
 
-class ValidSlotsSerializer(serializers.ModelSerializer):
+class ValidSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = ValidSlot
         fields = "__all__"
@@ -17,12 +17,6 @@ class ValidSlotsSerializer(serializers.ModelSerializer):
 class AvailableSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = AvailableSlot
-        fields = "__all__"
-
-
-class ValidSlotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ValidSlot
         fields = "__all__"
 
 
@@ -35,7 +29,7 @@ class ValidSlotResultsetSerializer(serializers.ModelSerializer):
 
 
 class TestSerializer(serializers.ModelSerializer):
-    validslot_id = ValidSlotsSerializer()
+    validslot_id = ValidSlotSerializer()
 
     class Meta:
         model = AvailableSlot

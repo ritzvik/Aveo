@@ -15,7 +15,7 @@ class ValidSlot(models.Model):
 
 class AvailableSlot(models.Model):
     id = models.AutoField(primary_key=True)
-    teacher_id = models.ForeignKey("Teacher", on_delete=models.SET_NULL, null=True)
-    validslot_id = models.ForeignKey("ValidSlot", on_delete=models.SET_NULL, null=True)
+    teacher_id = models.ForeignKey("Teacher", related_name='teacher', on_delete=models.SET_NULL, null=True)
+    validslot_id = models.ForeignKey("ValidSlot", related_name='slot', on_delete=models.SET_NULL, null=True)
     date = models.DateField()
     status = models.IntegerField()  # 0 for cancelled, 1 for available, 2 for confirmed

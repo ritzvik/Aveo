@@ -18,3 +18,19 @@ class AvailableSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = AvailableSlot
         fields = "__all__"
+
+
+class ValidSlotResultsetSerializer(serializers.ModelSerializer):
+    slot = AvailableSlotSerializer(many=True)
+
+    class Meta:
+        model = ValidSlot
+        fields = "__all__"
+
+
+class TestSerializer(serializers.ModelSerializer):
+    validslot_id = ValidSlotSerializer()
+
+    class Meta:
+        model = AvailableSlot
+        fields = "__all__"

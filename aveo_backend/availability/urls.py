@@ -24,6 +24,7 @@ urlpatterns += [
         views_generics.DetailsView_ValidSlot.as_view(),
     ),
     path("{}validslot/day/<int:day>/".format(prefix), views_generics.validslot__day),
+    path("{}validslot/date/<str:date>/".format(prefix), views_generics.validslot__date),
     path(
         "{}availableslot/".format(prefix),
         views_generics.CreateView_AvailableSlot.as_view(),
@@ -43,6 +44,10 @@ urlpatterns += [
     path(
         "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day__date,
+    ),
+    path(
+        "{}availableslot/tid/<int:teacher_id>/date/<str:date>".format(prefix),
+        views_generics.availableslot___teacher_id__date,
     ),
     path(
         "{}availableslot/tid/<int:teacher_id>/m/<int:month>/y/<int:year>/".format(

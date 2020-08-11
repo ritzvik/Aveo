@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -18,8 +19,21 @@ from .models import Teacher, AvailableSlot, ValidSlot
 from django.db.models import Prefetch
 
 
+def day_from_date(datestring: str):
+    date_obj = datetime.strptime(datestring, "%Y-%m-%d")
+    return date_obj.weekday()
+
+
 @api_view(["GET"])
 def validslot__day(request, day):
+    objs = ValidSlot.objects.filter(day=day)
+    serializer = ValidSlotSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def validslot__date(request, date):
+    day = day_from_date(date)
     objs = ValidSlot.objects.filter(day=day)
     serializer = ValidSlotSerializer(objs, many=True)
     return Response(serializer.data)
@@ -43,6 +57,19 @@ def availableslot___teacher_id__validslot_day(request, teacher_id, day):
 
 @api_view(["GET"])
 def availableslot___teacher_id__validslot_day__date(request, teacher_id, day, date):
+    objs = ValidSlot.objects.filter(day=day).prefetch_related(
+        Prefetch(
+            "slot",
+            queryset=AvailableSlot.objects.filter(teacher_id=teacher_id, date=date),
+        )
+    )
+    serializer = ValidSlotResultsetSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def availableslot___teacher_id__date(request, teacher_id, date):
+    day = day_from_date(date)
     objs = ValidSlot.objects.filter(day=day).prefetch_related(
         Prefetch(
             "slot",

@@ -44,5 +44,11 @@ urlpatterns += [
         "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day__date,
     ),
+    path(
+        "{}availableslot/tid/<int:teacher_id>/m/<int:month>/y/<int:year>/".format(
+            prefix
+        ),
+        views_generics.availableslot___teacher_id__month__year,
+    ),
     path("{}test/".format(prefix), views_test.test,),
 ]

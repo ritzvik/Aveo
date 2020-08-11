@@ -1,49 +1,65 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
-import MonthView from './MonthView'
-import Nav from './Nav'
+import React from "react";
+import Header from "./components/Header";
+import TeacherForm from "./components/TeacherForm";
+import MonthView from "./components/MonthView";
 
-const LOCAL_STORAGE_KEY = 'ta.tid'
+// import Data from './data/Data'
 
-function App() {
-  const [tid, setTid] = useState(null)
-  const tidRef = useRef()
+const USER_KEY = 'id'
 
-  useEffect(() => {
-    const savedTid = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEY)
-    )
-    if (savedTid) setTid(savedTid)
-  }, [])
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLoggedIn: false,
+            data: JSON.parse(localStorage.getItem(USER_KEY)) || ""
+        }
+        if (this.state.data !== "") this.state.isLoggedIn = true
+        this.getTeacher = this.getTeacher.bind(this)
+        this.handleLogout = this.handleLogout.bind(this)
+    }
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tid))
-    console.log("New TeacherID", tid)
-  }, [tid])
 
-  function handleTidEntry(e) {
-    if (tidRef.current.value == null) return;
-    const newTid = tidRef.current.value
-    setTid(newTid)
-    tidRef.current.value = null
-    return <Redirect to="/month" />
-  }
+    BASE_URL = "http://127.0.0.1:8000/"
 
-  return (
-    <Router>
-      <Nav />
-      <Switch>
-        <Route path="/" exact>
-          <input ref={tidRef} type="number" />
-          <button onClick={handleTidEntry}>Set TeacherID</button>
-          <button onClick={event => window.location.href = "/month"}>Go!</button>
-        </Route>
-        <Route path="/month" exact>
-          <MonthView tid={tid} />
-        </Route>
-      </Switch>
-    </Router>
-  );
+    getTeacher(id) {
+        const TEACHER_API_URL = "ta2/api/teacher/"
+        console.log(this.BASE_URL + TEACHER_API_URL + id + "/")
+        const URL = this.BASE_URL + TEACHER_API_URL + id + "/"
+
+        fetch(URL).then(response => response.json())
+            .then((data) => {
+                console.log(data);
+                localStorage.setItem(USER_KEY, JSON.stringify(data))
+                this.setState({
+                    isLoggedIn: true,
+                    data: data
+                })
+            });
+    }
+
+    handleLogout() {
+        localStorage.clear();
+        this.setState({
+            isLoggedIn: false,
+            data: ""
+        })
+    }
+
+    render() {
+        return (
+            <div>
+                <Header
+                    data={this.state}
+                    logout={this.handleLogout}
+                />
+                {!this.state.isLoggedIn
+                    ? <TeacherForm handleSubmit={this.getTeacher}/>
+                    : <MonthView/>
+                }
+            </div>
+        )
+    }
 }
 
-export default App;
+export default App

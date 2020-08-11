@@ -53,6 +53,25 @@ def availableslot___teacher_id__validslot_day__date(request, teacher_id, day, da
     return Response(serializer.data)
 
 
+@api_view(["GET"])
+def availableslot___teacher_id__month__year(request, teacher_id, month, year):
+    def _enddate(month: int, year: int):
+        enddate_lists = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        if year % 4 == 0:
+            enddate_lists[1] = 29
+        return enddate_lists[month - 1]
+
+    month = str(month).zfill(2)
+    year = str(year).zfill(4)
+    startdate = "{}-{}-01".format(year, month)
+    enddate = "{}-{}-{}".format(year, month, str(_enddate(int(month), int(year))))
+    objs = AvailableSlot.objects.filter(
+        teacher_id__id=teacher_id, date__gte=startdate, date__lte=enddate
+    )
+    serializer = AvailableSlotSerializer(objs, many=True)
+    return Response(serializer.data)
+
+
 class CreateView_Teacher(generics.ListCreateAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer

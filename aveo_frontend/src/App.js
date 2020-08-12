@@ -24,13 +24,11 @@ class App extends React.Component {
 
     getTeacher(id) {
         const TEACHER_API_URL = "ta2/api/teacher/"
-        console.log(this.BASE_URL + TEACHER_API_URL + id + "/")
         const URL = this.BASE_URL + TEACHER_API_URL + id + "/"
 
         fetch(URL).then(response => response.json())
             .then((data) => {
-                console.log(data);
-                localStorage.setItem(USER_KEY, JSON.stringify(data))
+                localStorage.setItem(USER_KEY, JSON.stringify(data));
                 this.setState({
                     isLoggedIn: true,
                     data: data
@@ -55,7 +53,7 @@ class App extends React.Component {
                 />
                 {!this.state.isLoggedIn
                     ? <TeacherForm handleSubmit={this.getTeacher}/>
-                    : <MonthView/>
+                    : <MonthView tdata={this.state.data}/>
                 }
             </div>
         )

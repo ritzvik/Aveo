@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 class MonthView extends React.Component {
+    constructor(props) {
+        super(props);
+    }
     render() {
         return (
-            <div> Month View </div>
+            <div> Welcome {this.props.tdata.first_name}!</div>
         )
     }
 }

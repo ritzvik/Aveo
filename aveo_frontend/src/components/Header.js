@@ -4,7 +4,6 @@ import {Navbar, Nav} from 'react-bootstrap';
 class Header extends React.Component {
     constructor(props) {
         super(props);
-        console.log()
     }
 
     render() {

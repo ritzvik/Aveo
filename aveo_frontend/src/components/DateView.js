@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react'
 import { StyleSheet, css } from 'aphrodite'
+import { Container } from "react-bootstrap";
 
 const styles = StyleSheet.create({
     container: {
@@ -90,11 +91,13 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
 
     return (
         <>
-            <label class={css(styles.container)}>
-                <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
-                <span class={css(styles.checkmark)} ></span>
-                {slot.start_time}
-            </label>
+            <Container fluid='md'>
+                <label class={css(styles.container)}>
+                    <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
+                    <span class={css(styles.checkmark)} ></span>
+                    {slot.start_time}
+                </label>
+            </Container>
         </>
     )
 }
@@ -135,7 +138,9 @@ class DateView extends React.Component {
         if (this.state.slotdataFetched) {
             return (
                 <>
-                    <h2>{this.state.date} | {this.dayList[this.state.slotdata[0].day]}</h2>
+                    <Container fluid='md'>
+                        <h2>{this.state.date} | {this.dayList[this.state.slotdata[0].day]}</h2>
+                    </Container>
                     {
                         this.state.slotdata.map(slot => {
                             return (

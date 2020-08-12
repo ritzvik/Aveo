@@ -42,11 +42,11 @@ urlpatterns += [
         views_generics.availableslot___teacher_id__validslot_day,
     ),
     path(
-        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>".format(prefix),
+        "{}availableslot/tid/<int:teacher_id>/day/<int:day>/<str:date>/".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day__date,
     ),
     path(
-        "{}availableslot/tid/<int:teacher_id>/date/<str:date>".format(prefix),
+        "{}availableslot/tid/<int:teacher_id>/date/<str:date>/".format(prefix),
         views_generics.availableslot___teacher_id__date,
     ),
     path(

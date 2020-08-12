@@ -2,6 +2,7 @@ import React from 'react';
 import {Calendar, Badge} from 'antd';
 import 'antd/dist/antd.css';
 
+import Editor from "./Editor"
 import {Container} from "react-bootstrap";
 import {API, format} from "../URLs";
 
@@ -10,13 +11,17 @@ class MonthView extends React.Component {
         super(props);
         this.state = {
             month : "",
-            month_view_data: ""
+            month_view_data: "",
+            editor: false,
+            editorDate: ""
         }
+        this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
         this.dateCellRender = this.dateCellRender.bind(this)
         this.getData = this.getData.bind(this)
         this.fetchMonthData = this.fetchMonthData.bind(this)
         this.onPanelChange = this.onPanelChange.bind(this)
+        this.onSelect = this.onSelect.bind(this)
     }
 
     componentDidMount() {
@@ -73,19 +78,39 @@ class MonthView extends React.Component {
         );
     }
 
+    toggleEditor(date){
+        this.setState( prevState => {
+                return {
+                    editor: !prevState.editor,
+                    editorDate: date
+                }
+            }
+        )
+    }
+
     onSelect(value) {
-        // console.log(value.format('YYYY-MM-DD'));
+        // console.log();
+        this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 
     render() {
         return (
-            <Container fluid='md'>
-                <Calendar
-                    dateCellRender={this.dateCellRender}
-                    onPanelChange={this.onPanelChange}
-                    onSelect={this.onSelect}
+            <div>
+                <Container fluid='md'>
+                    <Calendar
+                        dateCellRender={this.dateCellRender}
+                        onPanelChange={this.onPanelChange}
+                        onSelect={this.onSelect}
+                    />
+                </Container>
+                <Editor
+                    show={this.state.editor}
+                    date={this.state.editorDate}
+                    tdata={this.props.tdata}
+                    handleClose={this.toggleEditor}
+                    // saveChanges={this.saveChanges}
                 />
-            </Container>
+            </div>
         )
     }
 }

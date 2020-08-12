@@ -16,16 +16,13 @@ class MonthView extends React.Component {
         this.getData = this.getData.bind(this)
     }
 
-    getData(date, month, year) {
-        // console.log(date, month, year);
+    getData(date, month) {
         let data = this.state.month_view_data;
         let item;
         let counter = 0
         for (item in data) {
-            var bool_date = date === parseInt(data[item].date.split("-")[2])
-            var bool_month = month + 1 === parseInt(data[item].date.split("-")[1])
-            var bool_year = year === parseInt(data[item].date.split("-")[0])
-            if (bool_date && bool_month && bool_year) {
+            if (date === data[item].date) {
+                console.log("True")
                 counter++;
             }
         }
@@ -37,10 +34,8 @@ class MonthView extends React.Component {
     }
 
     dateCellRender(value) {
-        var date = value.date()
         var month = value.month()
-        var year = value.year()
-        var month_data = this.getData(date, month, year)
+        var month_data = this.getData(value.format('YYYY-MM-DD'), month)
         return (
             <div className="events">
                 {month_data.valid_month &&
@@ -51,27 +46,27 @@ class MonthView extends React.Component {
     }
 
     componentDidMount() {
-        const URL = API.BASE_URL + format(API.MONTH_API_URL, [2, 8, 2020])
+        var d = new Date();
+        var m = d.getMonth()+1;
+        var y = d.getFullYear()
+        const URL = API.BASE_URL + format(API.MONTH_API_URL, [this.props.tdata.id, m, y])
 
         fetch(URL).then(response => response.json())
             .then((data) => {
-                console.log(data)
-                // localStorage.setItem(API.USER_KEY, JSON.stringify(data));
                 this.setState({month_view_data: data})
             });
     }
 
-    onPanelChange(value, mode) {
-        console.log(value.format('YYYY-MM-DD'), mode);
+    onSelect(value) {
+        console.log(value.format('YYYY-MM-DD'));
     }
 
     render() {
         return (
             <Container fluid='md'>
-                {/*Welcome {this.props.tdata.first_name}!*/}
                 <Calendar
                     dateCellRender={this.dateCellRender}
-                    onPanelChange={this.onPanelChange}
+                    onSelect={this.onSelect}
                 />
             </Container>
         )

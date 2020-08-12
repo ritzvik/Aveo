@@ -3,6 +3,43 @@
 
 
 import React, { useState } from 'react'
+import { StyleSheet, css } from 'aphrodite'
+
+const styles = StyleSheet.create({
+    container: {
+        display: 'block',
+        position: 'relative',
+        paddingLeft: '35px',
+        marginBottom: '12px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        fontSize: '22px',
+        userSelect: 'none',
+
+        ':input': {
+            position: 'absolute',
+            opacity: '0',
+            cursor: 'pointer',
+            height: '0',
+            width: '0',
+        },
+    },
+    checkmark: {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        height: '25px',
+        width: '25px',
+        backgroundColor: '#eee',
+
+        ':after': {
+            content: '',
+            position: 'absolute',
+            display: 'none',
+        },
+    },
+})
 
 function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
     var markedAvailable = false
@@ -53,10 +90,11 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
 
     return (
         <>
-            <div><span> &#8226;
+            <label class={css(styles.container)}>
                 <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
+                <span class={css(styles.checkmark)} ></span>
                 {slot.start_time}
-            </span> </div>
+            </label>
         </>
     )
 }
@@ -97,7 +135,7 @@ class DateView extends React.Component {
         if (this.state.slotdataFetched) {
             return (
                 <>
-                    <h2>{this.state.date}, {this.dayList[this.state.slotdata[0].day]}</h2>
+                    <h2>{this.state.date} | {this.dayList[this.state.slotdata[0].day]}</h2>
                     {
                         this.state.slotdata.map(slot => {
                             return (

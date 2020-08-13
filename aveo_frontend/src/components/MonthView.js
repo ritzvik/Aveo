@@ -98,7 +98,8 @@ class MonthView extends React.Component {
     }
 
     onSelect(value) {
-        this.toggleEditor(value.format('YYYY-MM-DD'))
+        if (value.month() + 1 === this.state.month)
+            this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 
     render() {

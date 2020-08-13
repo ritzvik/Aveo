@@ -83,7 +83,6 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
 
             fetch(URL, requestOptions).then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     falsifySlotDataFetched();
                 })
         }
@@ -92,9 +91,9 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
     return (
         <>
             <Container fluid='md'>
-                <label class={css(styles.container)}>
+                <label className={css(styles.container)}>
                     <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
-                    <span class={css(styles.checkmark)} ></span>
+                    <span className={css(styles.checkmark)} ></span>
                     {slot.start_time}
                 </label>
             </Container>
@@ -122,7 +121,6 @@ class DateView extends React.Component {
 
         fetch(URL).then(response => response.json()).then(
             data => {
-                console.log(data);
                 this.setState({
                     slotdata: data,
                     slotdataFetched: true,

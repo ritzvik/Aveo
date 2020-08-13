@@ -3,7 +3,7 @@ import {Button,Modal} from "react-bootstrap";
 import DateView from "./DateView";
 
 function Editor(props) {
-    // console.log(props.data)
+
     return (
         <div>
             <Modal show={props.show} onHide={props.handleClose} centered size="xl" dialogClassName="col-md-12">
@@ -18,11 +18,8 @@ function Editor(props) {
                     />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => props.handleClose("")}>
+                    <Button variant="primary" onClick={() => props.handleClose("")}>
                         Close
-                    </Button>
-                    <Button variant="primary">
-                        Save Changes
                     </Button>
                 </Modal.Footer>
             </Modal>

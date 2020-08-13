@@ -79,6 +79,8 @@ class MonthView extends React.Component {
     }
 
     toggleEditor(date){
+        var editorClosing = this.state.editor
+        var tmpdate = this.state.editorDate
         this.setState( prevState => {
                 return {
                     editor: !prevState.editor,
@@ -86,10 +88,16 @@ class MonthView extends React.Component {
                 }
             }
         )
+
+        if (editorClosing) {
+            var d = new Date(tmpdate)
+            var m = d.getMonth()+1
+            var y = d.getFullYear()
+            this.fetchMonthData(m, y)
+        }
     }
 
     onSelect(value) {
-        // console.log();
         this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 

@@ -1,16 +1,16 @@
 import React from 'react';
-import {Calendar, Badge} from 'antd';
+import { Calendar, Badge } from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
-import {Container} from "react-bootstrap";
-import {API, format} from "../URLs";
+import { Container } from "react-bootstrap";
+import { API, format } from "../URLs";
 
 class MonthView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            month : "",
+            month: "",
             month_view_data: "",
             editor: false,
             editorDate: ""
@@ -26,12 +26,12 @@ class MonthView extends React.Component {
 
     componentDidMount() {
         var d = new Date();
-        var m = d.getMonth()+1;
+        var m = d.getMonth() + 1;
         var y = d.getFullYear()
-        this.fetchMonthData(m,y)
+        this.fetchMonthData(m, y)
     }
 
-    fetchMonthData(month, year){
+    fetchMonthData(month, year) {
         const URL = API.BASE_URL + format(API.MONTH_API_URL, [this.props.tdata.id, month, year])
 
         fetch(URL).then(response => response.json())
@@ -44,9 +44,9 @@ class MonthView extends React.Component {
     }
 
     onPanelChange(value, mode) {
-        const m = value.month()+1
+        const m = value.month() + 1
         const y = value.year()
-        if (this.state.month !== m) this.fetchMonthData(m,y)
+        if (this.state.month !== m) this.fetchMonthData(m, y)
     }
 
     getData(date, month) {
@@ -61,8 +61,8 @@ class MonthView extends React.Component {
         return month + 1 === this.state.month ? {
             valid_month: true,
             type: counter === 0 ? "warning" : "success",
-            content: counter + (counter === 1 ? " Slot" : " Slots") + " Available"
-        } : {valid_month: false}
+            content: counter + (counter === 1 ? " Slot" : " Marked") + " Available"
+        } : { valid_month: false }
     }
 
     dateCellRender(value) {
@@ -72,24 +72,32 @@ class MonthView extends React.Component {
         return (
             <div className="events">
                 {month_data.valid_month &&
-                <Badge status={month_data.type} text={month_data.content}/>
+                    <Badge status={month_data.type} text={month_data.content} />
                 }
             </div>
         );
     }
 
-    toggleEditor(date){
-        this.setState( prevState => {
-                return {
-                    editor: !prevState.editor,
-                    editorDate: date
-                }
+    toggleEditor(date) {
+        var editorClosing = this.state.editor
+        var tmpdate = this.state.editorDate
+        this.setState(prevState => {
+            return {
+                editor: !prevState.editor,
+                editorDate: date
             }
+        }
         )
+
+        if (editorClosing) {
+            var d = new Date(tmpdate)
+            var m = d.getMonth() + 1
+            var y = d.getFullYear()
+            this.fetchMonthData(m, y)
+        }
     }
 
     onSelect(value) {
-        // console.log();
         this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 
@@ -108,7 +116,6 @@ class MonthView extends React.Component {
                     date={this.state.editorDate}
                     tdata={this.props.tdata}
                     handleClose={this.toggleEditor}
-                    // saveChanges={this.saveChanges}
                 />
             </div>
         )

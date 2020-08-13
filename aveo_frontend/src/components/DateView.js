@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import { Container } from "react-bootstrap";
+import { Container } from "react-bootstrap"
 
 const styles = StyleSheet.create({
     container: {
@@ -48,10 +48,8 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
         markedAvailable = true
     }
 
-    function falsifySlotDataFetched() {
-        thisDateView.setState({
-            slotdataFetched: false,
-        })
+    function reFetchSlotData() {
+        thisDateView.fetchSoltData(tid, date)
     };
 
     function toggleAvailability() {
@@ -65,7 +63,7 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
             };
 
             fetch(URL, requestOptions).then(() => {
-                falsifySlotDataFetched();
+                reFetchSlotData();
             })
         }
         else {
@@ -83,8 +81,7 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
 
             fetch(URL, requestOptions).then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    falsifySlotDataFetched();
+                    reFetchSlotData();
                 })
         }
     };
@@ -92,9 +89,9 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
     return (
         <>
             <Container fluid='md'>
-                <label class={css(styles.container)}>
+                <label className={css(styles.container)}>
                     <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
-                    <span class={css(styles.checkmark)} ></span>
+                    <span className={css(styles.checkmark)} ></span>
                     {slot.start_time}
                 </label>
             </Container>
@@ -122,7 +119,6 @@ class DateView extends React.Component {
 
         fetch(URL).then(response => response.json()).then(
             data => {
-                console.log(data);
                 this.setState({
                     slotdata: data,
                     slotdataFetched: true,

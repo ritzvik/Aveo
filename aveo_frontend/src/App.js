@@ -2,7 +2,7 @@ import React from "react";
 import Header from "./components/Header";
 import TeacherForm from "./components/TeacherForm";
 import MonthView from "./components/MonthView";
-import {API, format} from "./URLs"
+import { API, format } from "./URLs"
 
 
 class App extends React.Component {
@@ -18,7 +18,7 @@ class App extends React.Component {
     }
 
     getTeacher(id) {
-        const URL = API.BASE_URL + format(API.TEACHER_API_URL,[id])
+        const URL = API.BASE_URL + format(API.TEACHER_API_URL, [id])
 
         fetch(URL).then(response => response.json())
             .then((data) => {
@@ -46,8 +46,8 @@ class App extends React.Component {
                     logout={this.handleLogout}
                 />
                 {!this.state.isLoggedIn
-                    ? <TeacherForm handleSubmit={this.getTeacher}/>
-                    : <MonthView tdata={this.state.data}/>
+                    ? <TeacherForm handleSubmit={this.getTeacher} />
+                    : <MonthView tdata={this.state.data} />
                 }
             </div>
         )

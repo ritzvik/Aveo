@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import { Container } from "react-bootstrap";
+import { Container } from "react-bootstrap"
 
 const styles = StyleSheet.create({
     container: {
@@ -48,10 +48,8 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
         markedAvailable = true
     }
 
-    function falsifySlotDataFetched() {
-        thisDateView.setState({
-            slotdataFetched: false,
-        })
+    function reFetchSlotData() {
+        thisDateView.fetchSoltData(tid, date)
     };
 
     function toggleAvailability() {
@@ -65,7 +63,7 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
             };
 
             fetch(URL, requestOptions).then(() => {
-                falsifySlotDataFetched();
+                reFetchSlotData();
             })
         }
         else {
@@ -83,7 +81,7 @@ function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
 
             fetch(URL, requestOptions).then(response => response.json())
                 .then(data => {
-                    falsifySlotDataFetched();
+                    reFetchSlotData();
                 })
         }
     };

@@ -1,6 +1,7 @@
 import React from 'react'
-import {Button,Modal} from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import DateView from "./DateView";
+import { API } from "../URLs"
 
 function Editor(props) {
 
@@ -14,7 +15,7 @@ function Editor(props) {
                     <DateView
                         tdata={props.tdata}
                         date={props.date}
-                        baseurl={"http://127.0.0.1:8000/"}
+                        baseurl={API.BASE_URL}
                     />
                 </Modal.Body>
                 <Modal.Footer>
@@ -27,4 +28,4 @@ function Editor(props) {
     );
 }
 
-export  default Editor
+export default Editor

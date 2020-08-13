@@ -102,6 +102,11 @@ class MonthView extends React.Component {
             this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 
+    disabledDate(value){
+        var d = new Date()
+        return value._d < d
+    }
+
     render() {
         return (
             <div>
@@ -110,6 +115,7 @@ class MonthView extends React.Component {
                         dateCellRender={this.dateCellRender}
                         onPanelChange={this.onPanelChange}
                         onSelect={this.onSelect}
+                        disabledDate={this.disabledDate}
                     />
                 </Container>
                 <Editor

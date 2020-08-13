@@ -61,7 +61,7 @@ class MonthView extends React.Component {
         return month + 1 === this.state.month ? {
             valid_month: true,
             type: counter === 0 ? "warning" : "success",
-            content: counter + (counter === 1 ? " Slot" : " Slots") + " Available"
+            content: counter + (counter === 1 ? " Slot" : " Marked") + " Available"
         } : { valid_month: false }
     }
 
@@ -116,7 +116,6 @@ class MonthView extends React.Component {
                     date={this.state.editorDate}
                     tdata={this.props.tdata}
                     handleClose={this.toggleEditor}
-                // saveChanges={this.saveChanges}
                 />
             </div>
         )

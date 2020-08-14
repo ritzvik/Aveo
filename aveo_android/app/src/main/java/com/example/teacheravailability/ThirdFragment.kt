@@ -25,6 +25,11 @@ class ThirdFragment : Fragment() {
     }
 
     val args: ThirdFragmentArgs by navArgs()
+    // args.dateNday: String  # displays the top text like "2020-08-20 | Thursday"
+    // args.teacherIDArg: Int
+    // args.year: Int
+    // args.month: Int  # months start from 0, example : 0 for January, 1 for Feb
+    // args.dayOfMonth: Int # starts from 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

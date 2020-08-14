@@ -28,5 +28,8 @@
             android:name="teacherNameArg"
             app:argType="string"
             android:defaultValue="Binod!" />
+        <argument
+            android:name="teacherIDArg"
+            app:argType="integer" />
     </fragment>
 </navigation>

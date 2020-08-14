@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    This file is redundant as of now, please don't use this to define API endpoints.-->
     <string name="base_url">"http://172.20.10.3:8000/"</string>
 
     <string name="teacher">api2/teacher/</string>

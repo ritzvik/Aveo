@@ -29,6 +29,7 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val teacherName = args.teacherNameArg
+        val tID = args.teacherIDArg
         view.findViewById<TextView>(R.id.teacherName).text = teacherName
 
     }

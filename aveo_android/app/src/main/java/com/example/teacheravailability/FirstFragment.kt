@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.example.teacheravailability.models.Teacher
 import com.example.teacheravailability.services.ServiceBuilder
@@ -25,7 +26,7 @@ class FirstFragment : Fragment() {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getTeacherList()
 
-        requestCall.enqueue(object: Callback<List<Teacher>> {
+        requestCall.enqueue(object : Callback<List<Teacher>> {
             override fun onResponse(
                 call: Call<List<Teacher>>?,
                 response: Response<List<Teacher>>?
@@ -34,40 +35,54 @@ class FirstFragment : Fragment() {
                     if (response.isSuccessful) {
                         val teacherList = response.body()!!
                     } else { // application level failure
-                        Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
 
             override fun onFailure(call: Call<List<Teacher>>?, t: Throwable?) {
-                Toast.makeText(context, "Error Occurred"+t.toString(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun loadTeacherByID(id: Int) {
+    private fun loadTeacherByIDandNavigate(id: Int) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getTeacherByID(id)
 
-        requestCall.enqueue(object: Callback<Teacher> {
+        requestCall.enqueue(object : Callback<Teacher> {
             override fun onResponse(call: Call<Teacher>?, response: Response<Teacher>?) {
                 if (response != null) {
                     if (response.isSuccessful) {
                         val teacherByID = response.body()!!
+
+                        val teacherFullName =
+                            teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
+                        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(
+                            teacherFullName
+                        )
+                        findNavController().navigate(action)
+
                     } else { // application level failure
-                        Toast.makeText(context, "Failed to retrieve teacher by ID!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Failed to retrieve teacher by ID!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
+
             override fun onFailure(call: Call<Teacher>?, t: Throwable?) {
-                Toast.makeText(context, "Error Occurred"+t.toString(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_first, container, false)
@@ -78,13 +93,15 @@ class FirstFragment : Fragment() {
 
         view.findViewById<Button>(R.id.buttonGo).setOnClickListener {
             val teacherID = view.findViewById<EditText>(R.id.teacherIdInput).text.toString()
-            loadTeacherByID(teacherID.toInt())
+
             if (teacherID != "") {
-                val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(teacherID)
-                findNavController().navigate(action)
-            }
-            else {
-                Toast.makeText(context, getString(R.string.teacher_id_blank_message), Toast.LENGTH_SHORT).show()
+                loadTeacherByIDandNavigate(teacherID.toInt())
+            } else {
+                Toast.makeText(
+                    context,
+                    getString(R.string.teacher_id_blank_message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

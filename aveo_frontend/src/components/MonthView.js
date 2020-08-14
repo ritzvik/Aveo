@@ -98,7 +98,13 @@ class MonthView extends React.Component {
     }
 
     onSelect(value) {
-        this.toggleEditor(value.format('YYYY-MM-DD'))
+        if (value.month() + 1 === this.state.month)
+            this.toggleEditor(value.format('YYYY-MM-DD'))
+    }
+
+    disabledDate(value){
+        var d = new Date()
+        return value._d < d
     }
 
     render() {
@@ -109,6 +115,7 @@ class MonthView extends React.Component {
                         dateCellRender={this.dateCellRender}
                         onPanelChange={this.onPanelChange}
                         onSelect={this.onSelect}
+                        disabledDate={this.disabledDate}
                     />
                 </Container>
                 <Editor

@@ -44,5 +44,16 @@
             android:name="dateNday"
             app:argType="string"
             android:defaultValue="0000-00-00 | Monday" />
+        <argument
+            android:name="teacherIDArg"
+            app:argType="integer" />
+        <argument android:name="year"
+            app:argType="integer" />
+        <argument
+            android:name="month"
+            app:argType="integer" />
+        <argument
+            android:name="dayOfMonth"
+            app:argType="integer" />
     </fragment>
 </navigation>

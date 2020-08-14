@@ -36,10 +36,16 @@ class SecondFragment : Fragment() {
 
         val calendar = view.findViewById<CalendarView>(R.id.calendarView)
         calendar.setOnDateChangeListener { calendar, year, month, dayOfMonth ->
-            val dateString =
+            val displayString =
                 year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth.toString()
 
-            val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(dateString)
+            val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(
+                displayString,
+                tID,
+                year,
+                month,
+                dayOfMonth
+            )
             findNavController().navigate(action)
         }
 

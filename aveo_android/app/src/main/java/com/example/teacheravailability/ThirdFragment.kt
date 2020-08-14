@@ -31,6 +31,5 @@ class ThirdFragment : Fragment() {
 
         val dateText = view.findViewById<TextView>(R.id.dateDisplay)
         dateText.text = args.dateNday
-
     }
 }

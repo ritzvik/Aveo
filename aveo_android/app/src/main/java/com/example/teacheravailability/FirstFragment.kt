@@ -60,7 +60,7 @@ class FirstFragment : Fragment() {
                         val teacherFullName =
                             teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
                         val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(
-                            teacherFullName
+                            teacherFullName, id
                         )
                         findNavController().navigate(action)
 

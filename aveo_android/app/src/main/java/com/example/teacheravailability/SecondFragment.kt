@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CalendarView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 
@@ -29,7 +31,23 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val teacherName = args.teacherNameArg
+        val tID = args.teacherIDArg
         view.findViewById<TextView>(R.id.teacherName).text = teacherName
+
+        val calendar = view.findViewById<CalendarView>(R.id.calendarView)
+        calendar.setOnDateChangeListener { calendar, year, month, dayOfMonth ->
+            val displayString =
+                year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth.toString()
+
+            val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(
+                displayString,
+                tID,
+                year,
+                month,
+                dayOfMonth
+            )
+            findNavController().navigate(action)
+        }
 
     }
 }

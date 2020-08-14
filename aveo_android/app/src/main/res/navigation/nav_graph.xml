@@ -28,5 +28,32 @@
             android:name="teacherNameArg"
             app:argType="string"
             android:defaultValue="Binod!" />
+        <argument
+            android:name="teacherIDArg"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_SecondFragment_to_ThirdFragment"
+            app:destination="@id/ThirdFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ThirdFragment"
+        android:name="com.example.teacheravailability.ThirdFragment"
+        android:label="Third Fragment"
+        tools:layout="@layout/fragment_third" >
+        <argument
+            android:name="dateNday"
+            app:argType="string"
+            android:defaultValue="0000-00-00 | Monday" />
+        <argument
+            android:name="teacherIDArg"
+            app:argType="integer" />
+        <argument android:name="year"
+            app:argType="integer" />
+        <argument
+            android:name="month"
+            app:argType="integer" />
+        <argument
+            android:name="dayOfMonth"
+            app:argType="integer" />
     </fragment>
 </navigation>

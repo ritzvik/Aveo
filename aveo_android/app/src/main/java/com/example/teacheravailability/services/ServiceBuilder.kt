@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ServiceBuilder {
 
     // private val URL: String = Resources.getSystem().getString(R.string.base_url)
-    private val URL: String = "http://172.20.10.3:8000/"
+    private val URL: String = "http://192.168.43.33:8000/"
 
     private val logger = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 

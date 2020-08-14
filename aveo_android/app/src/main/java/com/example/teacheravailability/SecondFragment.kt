@@ -34,8 +34,8 @@ class SecondFragment : Fragment() {
         val tID = args.teacherIDArg
         view.findViewById<TextView>(R.id.teacherName).text = teacherName
 
-        val calender = view.findViewById<CalendarView>(R.id.calendarView)
-        calender.setOnDateChangeListener { calender, year, month, dayOfMonth ->
+        val calendar = view.findViewById<CalendarView>(R.id.calendarView)
+        calendar.setOnDateChangeListener { calendar, year, month, dayOfMonth ->
             val dateString =
                 year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth.toString()
 

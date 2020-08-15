@@ -13,14 +13,12 @@ import com.example.teacheravailability.models.Slot
 import com.example.teacheravailability.models.ValidSlots
 import com.example.teacheravailability.models.ValidSlotsState
 import com.example.teacheravailability.services.ServiceBuilder
-import com.example.teacheravailability.services.SlotsServiceBuilder
 import com.example.teacheravailability.services.TeacherService
 import kotlinx.android.synthetic.main.fragment_third.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.ArrayList
-import kotlin.math.log
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -78,7 +76,6 @@ class ThirdFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<List<ValidSlots>>?, t: Throwable?) {
-                println(t.toString())
                 Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
@@ -119,8 +116,11 @@ class ThirdFragment : Fragment() {
                     if (response != null) {
                         if (response.isSuccessful) {
                             println("-------------------Added---------------")
-                            for (slot in currentState!!)  {
-                                state.get(slot.key)?.status = slot.value.status
+                            println(response.body())
+                            var createdSlots = response.body()
+                            for (slot in createdSlots!!)  {
+                                state.get(slot.validslot_id)?.status = true
+                                state.get(slot.validslot_id)?.available_slot_id = slot.id
                             }
                         }
                     }
@@ -144,6 +144,7 @@ class ThirdFragment : Fragment() {
                             println("---------------Deleted---------------")
                             for (slot in currentState!!)  {
                                 state.get(slot.key)?.status = slot.value.status
+                                Toast.makeText(context, "Changes Saved.", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

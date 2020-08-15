@@ -1,7 +1,5 @@
 package com.example.teacheravailability.services
 
-import android.content.res.Resources
-import com.example.teacheravailability.R
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

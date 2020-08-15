@@ -6,6 +6,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework import status
 
 from .serializers import (
     TeacherSerializer,
@@ -98,6 +99,21 @@ def availableslot___teacher_id__month__year(request, teacher_id, month, year):
     serializer = AvailableSlotSerializer(objs, many=True)
     return Response(serializer.data)
 
+@api_view(["DELETE","GET"])
+def availableslot___teacher_id_list(request,teacher_id):
+    objs = AvailableSlot.objects.filter(teacher_id=teacher_id, id__in=request.data)
+    print(objs)
+    if len(objs) < len(request.data):
+        return JsonResponse({'message': 'Slots does\'nt exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'DELETE':
+        objs.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    elif request.method == 'GET':
+        if len(request.data) < 1:
+            objs = AvailableSlot.objects.filter()
+        serializer = AvailableSlotSerializer(objs, many=True)
+        return Response(serializer.data)
 
 class CreateView_Teacher(generics.ListCreateAPIView):
     queryset = Teacher.objects.all()
@@ -122,6 +138,11 @@ class CreateView_AvailableSlot(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
+    def get_serializer(self, *args, **kwargs):
+            """ if an array is passed, set serializer to many """
+            if isinstance(kwargs.get('data', {}), list):
+                kwargs['many'] = True
+            return super(CreateView_AvailableSlot, self).get_serializer(*args, **kwargs)
 
 class DetailsView_Teacher(generics.RetrieveUpdateDestroyAPIView):
     queryset = Teacher.objects.all()
@@ -136,3 +157,4 @@ class DetailsView_ValidSlot(generics.RetrieveUpdateDestroyAPIView):
 class DetailsView_AvailableSlot(generics.RetrieveUpdateDestroyAPIView):
     queryset = AvailableSlot.objects.all()
     serializer_class = AvailableSlotSerializer
+

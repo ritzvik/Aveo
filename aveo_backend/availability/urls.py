@@ -38,6 +38,10 @@ urlpatterns += [
         views_generics.availableslot___teacher_id,
     ),
     path(
+        "{}availableslot/tid/<int:teacher_id>/delete/".format(prefix),
+        views_generics.availableslot___teacher_id_list,
+    ),
+    path(
         "{}availableslot/tid/<int:teacher_id>/day/<int:day>/".format(prefix),
         views_generics.availableslot___teacher_id__validslot_day,
     ),

@@ -8,9 +8,14 @@ data class AvailableSlots (
 )
 
 data class Slot(
-    var id: Int = 0,
+    var id: Int? = null,
     var date: String? = null,
     var status: Int? = null,
     var teacher_id: Int? = null,
     var validslot_id: Int? = null
+)
+
+data class AvailableSlotsState (
+    var id: Int? = null,
+    var status: Boolean? = false
 )

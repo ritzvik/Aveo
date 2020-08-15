@@ -26,13 +26,13 @@
         android:layout_height="534dp"
         android:layout_marginBottom="5dp"
         android:overScrollMode="never"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintBottom_toTopOf="@+id/saveAvailabilityBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateDisplay" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/saveAvailabilityBtn"
         style="@android:style/Widget.DeviceDefault.Button.Borderless.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

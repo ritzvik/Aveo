@@ -6,25 +6,29 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
 import com.example.teacheravailability.R
-import com.example.teacheravailability.models.AvailableSlots
-import com.example.teacheravailability.models.AvailableSlotsState
+import com.example.teacheravailability.models.ValidSlots
+import com.example.teacheravailability.models.ValidSlotsState
 
 
-private var state: MutableMap<Int, AvailableSlotsState> = mutableMapOf()
+private var state: MutableMap<Int, ValidSlotsState>? = null
 
-class SlotViewAdaptor(var slotsData: List<AvailableSlots>): RecyclerView.Adapter<SlotViewHolder>() {
+class SlotViewAdaptor(var slotsData: List<ValidSlots>): RecyclerView.Adapter<SlotViewHolder>() {
 
     fun intializeState(){
+        state = mutableMapOf()
         for (item in this.slotsData){
             var status = false
             if (item.slot?.size!! > 0) {
                 status = true
             }
-            var item_state = AvailableSlotsState(
+            var available_slot_id: Int? = null
+            if (item.slot!!.size > 0) available_slot_id = item.slot?.get(0)?.id
+            var item_state = ValidSlotsState(
                 item.id,
-                status
+                status,
+                available_slot_id = available_slot_id
             )
-            state?.put(item.id,item_state)
+            state!!.put(item.id,item_state)
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlotViewHolder {
@@ -40,7 +44,7 @@ class SlotViewAdaptor(var slotsData: List<AvailableSlots>): RecyclerView.Adapter
         holder.bind(slotsData[position])
     }
 
-    fun getState(): MutableMap<Int, AvailableSlotsState> {
+    fun getState(): MutableMap<Int, ValidSlotsState>? {
         return state
     }
 
@@ -49,7 +53,7 @@ class SlotViewAdaptor(var slotsData: List<AvailableSlots>): RecyclerView.Adapter
 class SlotViewHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
     private val slotTime = viewItem.findViewById<CheckBox>(R.id.slotCheckBox)
 
-    fun bind(slot: AvailableSlots){
+    fun bind(slot: ValidSlots){
         slotTime.text = slot.start_time
         slotTime.tag = slot.id
         if (slot.slot?.size!! > 0) {
@@ -57,9 +61,9 @@ class SlotViewHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
         }
         slotTime?.setOnCheckedChangeListener{buttonView, isChecked ->
             var id = slotTime.tag as Int
-            var sloteState = state.get(id)
-            sloteState?.status = !sloteState?.status!!
-            state.put(id, sloteState)
+            var slotState = state?.get(id)
+            slotState?.status = !slotState?.status!!
+            state?.put(id, slotState)
         }
     }
 }

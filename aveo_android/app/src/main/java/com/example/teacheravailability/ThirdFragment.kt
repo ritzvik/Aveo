@@ -6,23 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.teacheravailability.adaptors.SlotViewAdaptor
-import com.example.teacheravailability.models.AvailableSlots
-import com.example.teacheravailability.models.AvailableSlotsState
 import com.example.teacheravailability.models.Slot
+import com.example.teacheravailability.models.ValidSlots
+import com.example.teacheravailability.models.ValidSlotsState
 import com.example.teacheravailability.services.ServiceBuilder
+import com.example.teacheravailability.services.SlotsServiceBuilder
 import com.example.teacheravailability.services.TeacherService
 import kotlinx.android.synthetic.main.fragment_third.*
-import kotlinx.android.synthetic.main.slot_item.*
-import org.w3c.dom.Text
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.ArrayList
+import kotlin.math.log
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -53,13 +51,16 @@ class ThirdFragment : Fragment() {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getAvailability(args.teacherIDArg, args.dateNday)
         var slotAdapter: SlotViewAdaptor? = null
-        var slots: List<AvailableSlots>? = listOf()
-        requestCall.enqueue(object : Callback<List<AvailableSlots>>{
-            override fun onResponse(call: Call<List<AvailableSlots>>?, response: Response<List<AvailableSlots>>?) {
+        var slots: List<ValidSlots>? = listOf()
+        var state: MutableMap<Int, ValidSlotsState> = mutableMapOf()
+        requestCall.enqueue(object : Callback<List<ValidSlots>>{
+            override fun onResponse(call: Call<List<ValidSlots>>?, response: Response<List<ValidSlots>>?) {
                 if (response != null) {
                     if (response.isSuccessful) {
                         slots = response.body()!!
+                        state = parseAvailableSlots(slots)
                         slotAdapter = SlotViewAdaptor(slots!!)
+
                         slotAdapter!!.intializeState()
                         slotsRecyclerView.apply {
                             layoutManager = LinearLayoutManager(activity)
@@ -76,32 +77,97 @@ class ThirdFragment : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<List<AvailableSlots>>?, t: Throwable?) {
+            override fun onFailure(call: Call<List<ValidSlots>>?, t: Throwable?) {
                 println(t.toString())
                 Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
         saveAvailabilityBtn.setOnClickListener{
             val currentState = slotAdapter?.getState()
-            val state = parseAvailableSlots(slots)
+            val delSlotList: MutableList<Int> = ArrayList()
+            val addSlotList: MutableList<Slot> = ArrayList()
             for (slot in state)  {
-                println(currentState?.get(slot.key))
-                println(slot)
+//                println(currentState!!.get(slot.key)?.status.toString() +" "+slot.value.status.toString() )
+                if (currentState!!.get(slot.key)?.status != slot.value.status){
+                    if (currentState.get(slot.key)?.status!!) {
+                        var newSLot = Slot(
+                            null,
+                            args.dateNday,
+                            1,
+                            args.teacherIDArg,
+                            slot.key
+                        )
+                        addSlotList.add(newSLot)
+                    }
+                    else if (currentState.get(slot.key)?.status  == false){
+                        delSlotList.add(slot.value.available_slot_id!!)
+                    }
+                }
             }
+
+            // Api service
+            val availablityService = ServiceBuilder.buildService(TeacherService::class.java)
+
+            //Post Api call
+            val postRequest = availablityService.setAvailability(addSlotList)
+            postRequest.enqueue(object : Callback<List<Slot>>{
+                override fun onFailure(call: Call<List<Slot>>?, t: Throwable?) {
+                    Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onResponse(call: Call<List<Slot>>?, response: Response<List<Slot>>?) {
+                    if (response != null) {
+                        if (response.isSuccessful) {
+                            println("-------------------Added---------------")
+                            for (slot in currentState!!)  {
+                                state.get(slot.key)?.status = slot.value.status
+                            }
+                        }
+                    }
+                }
+
+            })
+
+            //Delete Api Call
+            val deleteRequest = availablityService.delAvailability(delSlotList, args.teacherIDArg)
+            deleteRequest.enqueue(object : Callback<Void>{
+                override fun onFailure(call: Call<Void>?, t: Throwable?) {
+                    Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onResponse(
+                    call: Call<Void>?,
+                    response: Response<Void>?
+                ) {
+                    if (response != null) {
+                        if (response.isSuccessful) {
+                            println("---------------Deleted---------------")
+                            for (slot in currentState!!)  {
+                                state.get(slot.key)?.status = slot.value.status
+                            }
+                        }
+                    }
+                }
+
+            })
+
         }
 
     }
-    fun parseAvailableSlots(slotsData: List<AvailableSlots>?): MutableMap<Int, AvailableSlotsState> {
-        var state: MutableMap<Int, AvailableSlotsState> = mutableMapOf()
+    fun parseAvailableSlots(slotsData: List<ValidSlots>?): MutableMap<Int, ValidSlotsState> {
+        var state: MutableMap<Int, ValidSlotsState> = mutableMapOf()
         if (slotsData != null) {
             for (item in slotsData){
                 var status = false
                 if (item.slot?.size!! > 0) {
                     status = true
                 }
-                var item_state = AvailableSlotsState(
+                var available_slot_id: Int? = null
+                if (item.slot!!.size > 0) available_slot_id = item.slot?.get(0)?.id
+                var item_state = ValidSlotsState(
                     item.id,
-                    status
+                    status,
+                    available_slot_id = available_slot_id
                 )
                 state.put(item.id,item_state)
             }

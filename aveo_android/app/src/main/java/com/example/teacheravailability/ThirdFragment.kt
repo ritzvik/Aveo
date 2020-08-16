@@ -9,8 +9,8 @@ import android.widget.*
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.teacheravailability.adaptors.SlotViewAdaptor
-import com.example.teacheravailability.models.Slot
-import com.example.teacheravailability.models.ValidSlots
+import com.example.teacheravailability.models.AvailableSlot
+import com.example.teacheravailability.models.ValidSlotAugmented
 import com.example.teacheravailability.models.ValidSlotsState
 import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
@@ -49,10 +49,10 @@ class ThirdFragment : Fragment() {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getAvailability(args.teacherIDArg, args.dateNday)
         var slotAdapter: SlotViewAdaptor? = null
-        var slots: List<ValidSlots>? = listOf()
+        var slots: List<ValidSlotAugmented>? = listOf()
         var state: MutableMap<Int, ValidSlotsState> = mutableMapOf()
-        requestCall.enqueue(object : Callback<List<ValidSlots>>{
-            override fun onResponse(call: Call<List<ValidSlots>>?, response: Response<List<ValidSlots>>?) {
+        requestCall.enqueue(object : Callback<List<ValidSlotAugmented>>{
+            override fun onResponse(call: Call<List<ValidSlotAugmented>>?, response: Response<List<ValidSlotAugmented>>?) {
                 if (response != null) {
                     if (response.isSuccessful) {
                         slots = response.body()!!
@@ -75,19 +75,19 @@ class ThirdFragment : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<List<ValidSlots>>?, t: Throwable?) {
+            override fun onFailure(call: Call<List<ValidSlotAugmented>>?, t: Throwable?) {
                 Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
         saveAvailabilityBtn.setOnClickListener{
             val currentState = slotAdapter?.getState()
             val delSlotList: MutableList<Int> = ArrayList()
-            val addSlotList: MutableList<Slot> = ArrayList()
+            val addSlotList: MutableList<AvailableSlot> = ArrayList()
             for (slot in state)  {
 //                println(currentState!!.get(slot.key)?.status.toString() +" "+slot.value.status.toString() )
                 if (currentState!!.get(slot.key)?.status != slot.value.status){
                     if (currentState.get(slot.key)?.status!!) {
-                        var newSLot = Slot(
+                        var newSLot = AvailableSlot(
                             null,
                             args.dateNday,
                             1,
@@ -107,12 +107,12 @@ class ThirdFragment : Fragment() {
 
             //Post Api call
             val postRequest = availablityService.setAvailability(addSlotList)
-            postRequest.enqueue(object : Callback<List<Slot>>{
-                override fun onFailure(call: Call<List<Slot>>?, t: Throwable?) {
+            postRequest.enqueue(object : Callback<List<AvailableSlot>>{
+                override fun onFailure(call: Call<List<AvailableSlot>>?, t: Throwable?) {
                     Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
                 }
 
-                override fun onResponse(call: Call<List<Slot>>?, response: Response<List<Slot>>?) {
+                override fun onResponse(call: Call<List<AvailableSlot>>?, response: Response<List<AvailableSlot>>?) {
                     if (response != null) {
                         if (response.isSuccessful) {
                             println("-------------------Added---------------")
@@ -155,7 +155,7 @@ class ThirdFragment : Fragment() {
         }
 
     }
-    fun parseAvailableSlots(slotsData: List<ValidSlots>?): MutableMap<Int, ValidSlotsState> {
+    fun parseAvailableSlots(slotsData: List<ValidSlotAugmented>?): MutableMap<Int, ValidSlotsState> {
         var state: MutableMap<Int, ValidSlotsState> = mutableMapOf()
         if (slotsData != null) {
             for (item in slotsData){

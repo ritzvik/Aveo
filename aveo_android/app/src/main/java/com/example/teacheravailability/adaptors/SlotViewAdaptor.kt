@@ -6,13 +6,13 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
 import com.example.teacheravailability.R
-import com.example.teacheravailability.models.ValidSlots
+import com.example.teacheravailability.models.ValidSlotAugmented
 import com.example.teacheravailability.models.ValidSlotsState
 
 
 private var state: MutableMap<Int, ValidSlotsState>? = null
 
-class SlotViewAdaptor(var slotsData: List<ValidSlots>): RecyclerView.Adapter<SlotViewHolder>() {
+class SlotViewAdaptor(var slotsData: List<ValidSlotAugmented>): RecyclerView.Adapter<SlotViewHolder>() {
 
     fun intializeState(){
         state = mutableMapOf()
@@ -53,7 +53,7 @@ class SlotViewAdaptor(var slotsData: List<ValidSlots>): RecyclerView.Adapter<Slo
 class SlotViewHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
     private val slotTime = viewItem.findViewById<CheckBox>(R.id.slotCheckBox)
 
-    fun bind(slot: ValidSlots){
+    fun bind(slot: ValidSlotAugmented){
         slotTime.text = slot.start_time
         slotTime.tag = slot.id
         if (slot.slot?.size!! > 0) {

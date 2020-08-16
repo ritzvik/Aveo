@@ -2,9 +2,9 @@
 // <DateView tdata={teacher object} date={"2020-08-20"} baseurl={"http://127.0.0.1:8000/"} />
 
 
-import React, { useState } from 'react'
-import { StyleSheet, css } from 'aphrodite'
-import { Container } from "react-bootstrap"
+import React, {useState} from 'react'
+import {StyleSheet, css} from 'aphrodite'
+import {Container} from "react-bootstrap"
 
 const styles = StyleSheet.create({
     container: {
@@ -42,119 +42,75 @@ const styles = StyleSheet.create({
     },
 })
 
-function SlotUnit({ baseurl, slot, tid, date, thisDateView }) {
-    var markedAvailable = false
-    if (slot.slot.length > 0) {
-        markedAvailable = true
+class SlotUnit extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            marked: this.props.slot.slot.length > 0
+        }
     }
 
-    function reFetchSlotData() {
-        thisDateView.fetchSoltData(tid, date)
-    };
+    updateSlot = (event) => {
+        this.setState(prevState => {
+            return {marked: !prevState.marked}
+        })
+        this.props.updateSlotState(event.target.id, !this.state.marked)
+    }
 
-    function toggleAvailability() {
-        var API_URL = "ta2/api/availableslot/"
-        if (markedAvailable) {
-            var API_URL_DELETE = API_URL + slot.slot[0].id + "/"
-            var URL = baseurl + API_URL_DELETE
-            var requestOptions = {
-                method: "DELETE",
-                headers: { 'Content-Type': 'application/json' },
-            };
-
-            fetch(URL, requestOptions).then(() => {
-                reFetchSlotData();
-            })
-        }
-        else {
-            var requestOptions = {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date: date,
-                    status: 1,
-                    teacher_id: tid,
-                    validslot_id: slot.id
-                })
-            };
-            var URL = baseurl + API_URL
-
-            fetch(URL, requestOptions).then(response => response.json())
-                .then(data => {
-                    reFetchSlotData();
-                })
-        }
-    };
-
-    return (
-        <>
-            <Container fluid='md'>
-                <label className={css(styles.container)}>
-                    <input type="checkbox" readOnly checked={markedAvailable} onClick={toggleAvailability} />
-                    <span className={css(styles.checkmark)} ></span>
-                    {slot.start_time}
-                </label>
-            </Container>
-        </>
-    )
+    render() {
+        return (
+            <div>
+                <Container fluid='md'>
+                    <label className={css(styles.container)}>
+                        <input id={this.props.id} type="checkbox" readOnly checked={this.state.marked}
+                               onClick={this.updateSlot}/>
+                        <span className={css(styles.checkmark)}></span>
+                        {this.props.slot.start_time}
+                    </label>
+                </Container>
+            </div>
+        )
+    }
 }
 
 class DateView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            date: this.props.date,
-            tdata: this.props.tdata,
-            baseurl: this.props.baseurl,
-            slotdata: null,
-            slotdataFetched: false,
+            currentSlotStates: null
         }
     }
+
     dayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-
-    fetchSoltData(tid, date) {
-        var API_URL = "ta2/api/availableslot/tid/" + tid + "/date/" + date + "/"
-        var URL = this.state.baseurl + API_URL
-
-        fetch(URL).then(response => response.json()).then(
-            data => {
-                this.setState({
-                    slotdata: data,
-                    slotdataFetched: true,
-                });
-            }
-        )
-    }
-
     render() {
-        if (!this.state.slotdataFetched) {
-            this.fetchSoltData(this.state.tdata.id, this.state.date);
-        }
-        if (this.state.slotdataFetched) {
-            return (
-                <>
-                    <Container fluid='md'>
-                        <h2>{this.state.date} | {this.dayList[this.state.slotdata[0].day]}</h2>
-                    </Container>
-                    {
-                        this.state.slotdata.map(slot => {
-                            return (
-                                <SlotUnit
-                                    key={slot.id}
-                                    baseurl={this.state.baseurl}
-                                    slot={slot}
-                                    tid={this.state.tdata.id}
-                                    date={this.state.date}
-                                    thisDateView={this}
-                                />
-                            )
-                        })
-                    }
-                </>
-            )
-        }
-        return null
+        var slots = null
+        if (this.props.slotDataFetched)
+            slots = this.props.slotData.map(slot => {
+                return (
+                    <SlotUnit
+                        key={slot.id}
+                        id={slot.id}
+                        baseurl={this.props.baseurl}
+                        slot={slot}
+                        tid={this.props.tdata.id}
+                        date={this.props.date}
+                        thisDateView={this}
+                        updateSlotState={this.props.updateSlotState}
+                    />
+                )
+            })
+        return (
+
+            <div>
+                {this.props.slotDataFetched &&
+                <Container fluid='md'>
+                    <h2>{this.props.date} | {this.dayList[this.props.slotData[0].day]}</h2>
+                </Container>
+                }
+                {slots}
+            </div>
+        )
     }
 }
 

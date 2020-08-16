@@ -18,7 +18,7 @@ class Editor extends React.Component {
     }
 
     fetchSoltData(tid, date) {
-        var URL = API.BASE_URL + format(API.DATE_SLOT_GET_API_URL, [tid, date])
+        var URL = API.BASE_URL + format(API.SLOT_GET_API_URL, [tid, date])
 
         fetch(URL).then(response => response.json()).then(
             data => {
@@ -65,24 +65,48 @@ class Editor extends React.Component {
         })
     }
 
+    addSlotAPICall = (slotList)=>{
+        var URL = API.BASE_URL + API.SLOT_POST_API
+        var requestOptions = {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: slotList
+        };
+        fetch(URL, requestOptions).then(response => response.json())
+    }
+
+    delSlotAPICall = (slotList)=>{
+        var URL = API.BASE_URL + format(API.SLOT_DELETE_API, [this.state.tdata.id])
+        var requestOptions = {
+            method: "DELETE",
+            headers: { 'Content-Type': 'application/json' },
+            body: slotList
+        };
+        fetch(URL, requestOptions).then(response => response.status)
+    }
+
     handleSave = () => {
         const changedSlots = this.state.currentSlotStates.filter(slot => {
             const id = slot.id
-            return slot.status !== this.state.slotStates.filter(slot=>{return slot.id === id})[0].status
+            return slot.status !== this.state.slotStates.filter(slot => {
+                return slot.id === id
+            })[0].status
         })
-        const addSlots = changedSlots.filter(slot=> slot.status).map(slot => {
+        const addSlots = JSON.stringify(changedSlots.filter(slot => slot.status).map(slot => {
             return {
                 date: this.state.date,
                 status: 1,
                 teacher_id: this.state.tdata.id,
                 validslot_id: slot.id
             }
-        })
-        const delSlots = changedSlots.filter(slot=> !slot.status).map(slot => slot.id)
-
+        }))
+        const delSlots = JSON.stringify(changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id))
+        this.addSlotAPICall(addSlots)
+        this.delSlotAPICall(delSlots)
         console.log(addSlots)
         console.log(delSlots)
     }
+
     onClose = () => {
         this.setState({slotdataFetched: false})
         this.props.handleClose()

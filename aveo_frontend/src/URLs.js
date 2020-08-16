@@ -4,7 +4,9 @@ export const API = {
     BASE_URL: "http://127.0.0.1:8000/",
     TEACHER_API_URL: "ta2/api/teacher/{0}/",
     MONTH_API_URL: "ta2/api/availableslot/tid/{0}/m/{1}/y/{2}/",
-    DATE_SLOT_GET_API_URL: "ta2/api/availableslot/tid/{0}/date/{1}/"
+    SLOT_GET_API_URL: "ta2/api/availableslot/tid/{0}/date/{1}/",
+    SLOT_POST_API: "ta2/api/availableslot/",
+    SLOT_DELETE_API: "ta2/api/availableslot/tid/{0}/delete/"
 }
 
 export const format = (string, arg) => {

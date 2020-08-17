@@ -53,6 +53,12 @@ dependencies {
     // Logging
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
+    // Anko for async ui methods
+    implementation "org.jetbrains.anko:anko:0.10.8"
+
+    // Material - Calendar View
+    implementation "com.github.prolificinteractive:material-calendarview:2.0.0"
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

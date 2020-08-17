@@ -106,7 +106,7 @@ class SecondFragment : Fragment() {
             val month = date.month
             val dayOfMonth = date.day
             val displayString =
-                year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth.toString()
+                year.toString() + "-" + (month).toString() + "-" + dayOfMonth.toString()
 
             val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(
                 displayString,

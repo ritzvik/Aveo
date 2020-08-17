@@ -27,7 +27,8 @@ class Editor extends React.Component {
                     slotdataFetched: true,
                     date: date,
                     slotStates: this.parseAvailableSlot(data),
-                    currentSlotStates: this.parseAvailableSlot(data)
+                    currentSlotStates: this.parseAvailableSlot(data),
+                    btnDisabled: true
                 });
             }
         )
@@ -65,24 +66,30 @@ class Editor extends React.Component {
         })
     }
 
-    addSlotAPICall = (slotList)=>{
+    APICall = (addSlotsList, delSlotsList) => {
         var URL = API.BASE_URL + API.SLOT_POST_API
         var requestOptions = {
             method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: slotList
+            headers: {'Content-Type': 'application/json'},
+            body: addSlotsList
         };
-        fetch(URL, requestOptions).then(response => response.json())
-    }
-
-    delSlotAPICall = (slotList)=>{
-        var URL = API.BASE_URL + format(API.SLOT_DELETE_API, [this.state.tdata.id])
-        var requestOptions = {
-            method: "DELETE",
-            headers: { 'Content-Type': 'application/json' },
-            body: slotList
-        };
-        fetch(URL, requestOptions).then(response => response.status)
+        fetch(URL, requestOptions).then(response => {
+            if (response.status == 201) {
+                var URL = API.BASE_URL + format(API.SLOT_DELETE_API, [this.state.tdata.id])
+                var requestOptions = {
+                    method: "DELETE",
+                    headers: {'Content-Type': 'application/json'},
+                    body: delSlotsList
+                };
+                fetch(URL, requestOptions).then(response => {
+                    if (response.status === 204) {
+                        this.fetchSoltData(this.state.tdata.id, this.state.date)
+                    }
+                }).then(
+                    alert("Availability Updated.")
+                )
+            }
+        })
     }
 
     handleSave = () => {
@@ -101,10 +108,9 @@ class Editor extends React.Component {
             }
         }))
         const delSlots = JSON.stringify(changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id))
-        this.addSlotAPICall(addSlots)
-        this.delSlotAPICall(delSlots)
-        console.log(addSlots)
-        console.log(delSlots)
+
+        this.APICall(addSlots, delSlots)
+
     }
 
     onClose = () => {

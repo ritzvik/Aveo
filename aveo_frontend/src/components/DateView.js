@@ -8,10 +8,26 @@ import {Container} from "react-bootstrap"
 
 const styles = StyleSheet.create({
     container: {
+        width: 180,
+        margin: "10px 30px",
+        borderRadius: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "2px solid #007bff",
+        ":hover": {
+            background: "#8ec4ff",
+            color: "white"
+        }
+    },
+    label: {
+        width: "100%",
+        textAlign: "center",
+        marginLeft: -13,
         display: 'block',
         position: 'relative',
-        paddingLeft: '35px',
-        marginBottom: '12px',
+        paddingLeft: '0',
+        marginBottom: '0',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
@@ -30,8 +46,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '0',
         left: '0',
-        height: '25px',
-        width: '25px',
+        height: '20px',
+        width: '20px',
         backgroundColor: '#eee',
 
         ':after': {
@@ -58,13 +74,22 @@ class SlotUnit extends React.Component {
     }
 
     render() {
+        const styleSheet = StyleSheet.create({
+            marked :{
+                background: "#007bff"
+            },
+            unmarked :{
+                background: "#ffffff"
+            }
+        })
+        console.log(this.state.marked? styleSheet.marked :styleSheet.unmarked)
         return (
             <div>
-                <Container fluid='md'>
-                    <label className={css(styles.container)}>
-                        <input id={this.props.id} type="checkbox" readOnly checked={this.state.marked}
+                <Container fluid='md' className={css(styles.container)} style={this.state.marked? {background: "#007bff",color: "#ffffff"} :{background: "#ffffff"} } >
+                    <label className={css(styles.label)}>
+                        <input style={{opacity: 0}} id={this.props.id} type="checkbox" readOnly
+                               checked={this.state.marked}
                                onClick={this.updateSlot}/>
-                        <span className={css(styles.checkmark)}></span>
                         {this.props.slot.start_time}
                     </label>
                 </Container>

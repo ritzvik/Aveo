@@ -1,10 +1,10 @@
 import React from 'react';
-import { Calendar, Badge } from 'antd';
+import {Calendar, Badge} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
-import { Container } from "react-bootstrap";
-import { API, format } from "../URLs";
+import {Container} from "react-bootstrap";
+import {API, format} from "../URLs";
 
 class MonthView extends React.Component {
     constructor(props) {
@@ -62,7 +62,7 @@ class MonthView extends React.Component {
             valid_month: true,
             type: counter === 0 ? "warning" : "success",
             content: counter + (counter === 1 ? " Slot" : " Marked") + " Available"
-        } : { valid_month: false }
+        } : {valid_month: false}
     }
 
     dateCellRender(value) {
@@ -72,7 +72,7 @@ class MonthView extends React.Component {
         return (
             <div className="events">
                 {month_data.valid_month &&
-                    <Badge status={month_data.type} text={month_data.content} />
+                <Badge status={month_data.type} text={month_data.content}/>
                 }
             </div>
         );
@@ -82,11 +82,11 @@ class MonthView extends React.Component {
         var editorClosing = this.state.editor
         var tmpdate = this.state.editorDate
         this.setState(prevState => {
-            return {
-                editor: !prevState.editor,
-                editorDate: date
+                return {
+                    editor: !prevState.editor,
+                    editorDate: date
+                }
             }
-        }
         )
 
         if (editorClosing) {
@@ -102,7 +102,7 @@ class MonthView extends React.Component {
             this.toggleEditor(value.format('YYYY-MM-DD'))
     }
 
-    disabledDate(value){
+    disabledDate(value) {
         var d = new Date()
         return value._d < d
     }

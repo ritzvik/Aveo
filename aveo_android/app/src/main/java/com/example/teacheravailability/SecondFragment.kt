@@ -64,7 +64,7 @@ class SecondFragment : Fragment() {
         calendar.removeDecorators()
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getAvailableSlotsByMonth(id, month, year)
-        val dateList: MutableList<Date> = mutableListOf()
+        val dateSet: MutableSet<Date> = mutableSetOf()
 
         requestCall.enqueue(object : Callback<List<AvailableSlot>> {
             override fun onResponse(
@@ -77,9 +77,8 @@ class SecondFragment : Fragment() {
 
                         responseBody.forEach{ slot ->
                             val dateObj = SimpleDateFormat("yyyy-MM-dd").parse(slot.date)
-                            dateList.add(dateObj)
+                            dateSet.add(dateObj)
                         }
-                        val dateSet: Set<Date> = dateList.toSet()
 
                         val scope = CoroutineScope(Job() + Dispatchers.Main)
                         scope.launch {

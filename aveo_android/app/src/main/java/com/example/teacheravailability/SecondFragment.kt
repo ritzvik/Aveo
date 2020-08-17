@@ -97,6 +97,8 @@ class SecondFragment : Fragment() {
     }
     private fun setUpMaterialCalendar(view: View, tID: Int) {
         val calendar = view.findViewById<MaterialCalendarView>(R.id.materialCalendar)
+        val initialDate = calendar.currentDate
+        slotsMarkedAvailable(tID, initialDate.month, initialDate.year, calendar)
 
         calendar.setOnDateChangedListener {calendar, date, selected ->
 
@@ -116,7 +118,6 @@ class SecondFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        // calendar.onViewAdded(calendar)
         calendar.setOnMonthChangedListener { calender, date ->
 
             slotsMarkedAvailable(tID, date.month, date.year, calendar)

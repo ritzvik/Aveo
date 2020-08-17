@@ -41,9 +41,9 @@
         android:label="Third Fragment"
         tools:layout="@layout/fragment_third" >
         <argument
-            android:name="dateNday"
+            android:name="dateString"
             app:argType="string"
-            android:defaultValue="0000-00-00 | Monday" />
+            android:defaultValue="2020-20-20" />
         <argument
             android:name="teacherIDArg"
             app:argType="integer" />

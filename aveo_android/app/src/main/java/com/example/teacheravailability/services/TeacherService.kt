@@ -24,4 +24,7 @@ interface TeacherService {
 
     @HTTP(method = "DELETE", path = "ta2/api/availableslot/tid/{id}/delete/", hasBody = true)
     fun delAvailability(@Body slotId: List<Int>, @Path("id") id: Int): Call<Void>
+
+    @GET("ta2/api/availableslot/tid/{id}/m/{month}/y/{year}/")
+    fun getAvailableSlotsByMonth(@Path("id") id: Int, @Path("month") month: Int, @Path("year") year: Int): Call<List<AvailableSlot>>
 }

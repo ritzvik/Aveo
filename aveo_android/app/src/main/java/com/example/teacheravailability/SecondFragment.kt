@@ -17,6 +17,10 @@ import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import com.prolificinteractive.materialcalendarview.CalendarDay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import retrofit2.Call
 import retrofit2.Callback
@@ -77,11 +81,12 @@ class SecondFragment : Fragment() {
                         }
                         val dateSet: Set<Date> = dateList.toSet()
 
-                        doAsync { }
-                        dateSet.forEach{ d ->
-                            calendar.addDecorators(dayDecorator(activity, CalendarDay.from(year, month, d.date)))
+                        val scope = CoroutineScope(Job() + Dispatchers.Main)
+                        scope.launch {
+                            dateSet.forEach{ d ->
+                                calendar.addDecorators(dayDecorator(activity, CalendarDay.from(year, month, d.date)))
+                            }
                         }
-
 
                     } else { // application level failure
                         Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT)

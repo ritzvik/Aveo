@@ -34,20 +34,20 @@ class ThirdFragment : Fragment() {
     }
 
     val args: ThirdFragmentArgs by navArgs()
-    // args.dateNday: String  # displays the top text like "2020-08-20 | Thursday"
+    // args.dateString: String  # string with format like "2020-8-20"
     // args.teacherIDArg: Int
     // args.year: Int
-    // args.month: Int  # months start from 0, example : 0 for January, 1 for Feb
+    // args.month: Int  # months start from 1, example : 1 for January, 2 for Feb
     // args.dayOfMonth: Int # starts from 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val dateText = view.findViewById<TextView>(R.id.dateDisplay)
-        dateText.text = args.dateNday
+        dateText.text = args.dateString
 
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getAvailability(args.teacherIDArg, args.dateNday)
+        val requestCall = teacherService.getAvailability(args.teacherIDArg, args.dateString)
         var slotAdapter: SlotViewAdaptor? = null
         var slots: List<ValidSlotAugmented>? = listOf()
         var state: MutableMap<Int, ValidSlotsState> = mutableMapOf()
@@ -89,7 +89,7 @@ class ThirdFragment : Fragment() {
                     if (currentState.get(slot.key)?.status!!) {
                         var newSLot = AvailableSlot(
                             null,
-                            args.dateNday,
+                            args.dateString,
                             1,
                             args.teacherIDArg,
                             slot.key

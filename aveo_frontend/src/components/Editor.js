@@ -85,9 +85,7 @@ class Editor extends React.Component {
                     if (response.status === 204) {
                         this.fetchSoltData(this.state.tdata.id, this.state.date)
                     }
-                }).then(
-                    alert("Availability Updated.")
-                )
+                })
             }
         })
     }

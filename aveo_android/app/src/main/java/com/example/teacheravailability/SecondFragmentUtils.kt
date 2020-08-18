@@ -12,7 +12,7 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 
 
-class dayDecorator(context: Activity?, day: CalendarDay) : DayViewDecorator {
+class DayDecorator(context: Activity?, day: CalendarDay) : DayViewDecorator {
     private val drawable: Drawable?
     var myDay = day
     override fun shouldDecorate(day: CalendarDay?): Boolean {

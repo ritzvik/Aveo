@@ -17,11 +17,8 @@ import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import com.prolificinteractive.materialcalendarview.CalendarDay
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -64,7 +61,6 @@ class SecondFragment : Fragment() {
         calendar.removeDecorators()
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getAvailableSlotsByMonth(id, month, year)
-        val dateSet: MutableSet<Date> = mutableSetOf()
 
         requestCall.enqueue(object : Callback<List<AvailableSlot>> {
             override fun onResponse(
@@ -73,20 +69,19 @@ class SecondFragment : Fragment() {
             ) {
                 if (response != null) {
                     if (response.isSuccessful) {
-                        val responseBody = response.body()!!
-
-                        responseBody.forEach{ slot ->
-                            val dateObj = SimpleDateFormat("yyyy-MM-dd").parse(slot.date)
-                            dateSet.add(dateObj)
-                        }
-
-                        val scope = CoroutineScope(Job() + Dispatchers.Main)
-                        scope.launch {
-                            dateSet.forEach{ d ->
-                                calendar.addDecorators(dayDecorator(activity, CalendarDay.from(year, month, d.date)))
+                        doAsync {
+                            val dateSet: MutableSet<Date> = mutableSetOf()
+                            val responseBody = response.body()!!
+                            responseBody.forEach{ slot ->
+                                val dateObj = SimpleDateFormat("yyyy-MM-dd").parse(slot.date)
+                                dateSet.add(dateObj)
+                            }
+                            uiThread {
+                                dateSet.forEach{ d ->
+                                    calendar.addDecorators(DayDecorator(activity, CalendarDay.from(year, month, d.date)))
+                                }
                             }
                         }
-
                     } else { // application level failure
                         Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT)
                             .show()
@@ -134,6 +129,7 @@ class SecondFragment : Fragment() {
 
         val teacherName = args.teacherNameArg
         val tID = args.teacherIDArg
+        (activity as? MainActivity)?.mApp?.setGlobalTeacherID(tID)
         view.findViewById<TextView>(R.id.teacherName).text = "Welcome " + teacherName + "!"
 
         setUpMaterialCalendar(view, tID)

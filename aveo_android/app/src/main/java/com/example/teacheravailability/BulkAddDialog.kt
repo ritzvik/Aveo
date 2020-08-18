@@ -1,8 +1,12 @@
 package com.example.teacheravailability
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
@@ -21,6 +25,7 @@ import kotlinx.android.synthetic.main.fragment_bulk_add.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class BulkAddDialog : DialogFragment() {
 
@@ -146,6 +151,7 @@ class BulkAddDialog : DialogFragment() {
         return inflater!!.inflate(R.layout.fragment_bulk_add, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val tID = arguments?.getInt(KEY_TID)!!
         displayTeacherName(tID, view.findViewById<TextView>(R.id.dialogTextView))
@@ -167,6 +173,44 @@ class BulkAddDialog : DialogFragment() {
             displayValidSlots()
         })
 
+        val startDateButton = view.findViewById<Button>(R.id.startDateButton)
+        val enddateButton = view.findViewById<Button>(R.id.endDateButton)
+        val startDateView = view.findViewById<EditText>(R.id.startDate)
+        val endDateView = view.findViewById<EditText>(R.id.endDate)
+
+        startDateButton.setOnClickListener { v ->
+            val c = Calendar.getInstance()
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+
+
+            val dpd = DatePickerDialog(requireContext(), DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+
+                // Display Selected date in textbox
+                startDateView.setText("" + dayOfMonth + "/" + (monthOfYear+1) + "/" + year)
+
+            }, year, month, day)
+
+            dpd.show()
+        }
+
+        endDateButton.setOnClickListener { v ->
+            val c = Calendar.getInstance()
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+
+
+            val dpd = DatePickerDialog(requireContext(), DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+
+                // Display Selected date in textbox
+                endDateView.setText("" + dayOfMonth + "/" + (monthOfYear+1) + "/" + year)
+
+            }, year, month, day)
+
+            dpd.show()
+        }
 
 
         super.onViewCreated(view, savedInstanceState)

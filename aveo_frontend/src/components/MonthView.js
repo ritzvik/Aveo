@@ -5,6 +5,7 @@ import 'antd/dist/antd.css';
 import Editor from "./Editor"
 import {Container} from "react-bootstrap";
 import {API, format} from "../URLs";
+import {fetchMonthData, fetchSoltData, addSlots, delSlots} from "../APIs"
 
 class MonthView extends React.Component {
     constructor(props) {
@@ -13,13 +14,17 @@ class MonthView extends React.Component {
             month: "",
             month_view_data: "",
             editor: false,
-            editorDate: ""
+            date: "",
+            slotdata: null,
+            slotdataFetched: false,
+            slotStates: null,
+            currentSlotStates: null,
+            btnDisabled: true
         }
         this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
         this.dateCellRender = this.dateCellRender.bind(this)
         this.getData = this.getData.bind(this)
-        this.fetchMonthData = this.fetchMonthData.bind(this)
         this.onPanelChange = this.onPanelChange.bind(this)
         this.onSelect = this.onSelect.bind(this)
     }
@@ -28,25 +33,24 @@ class MonthView extends React.Component {
         var d = new Date();
         var m = d.getMonth() + 1;
         var y = d.getFullYear()
-        this.fetchMonthData(m, y)
-    }
-
-    fetchMonthData(month, year) {
-        const URL = API.BASE_URL + format(API.MONTH_API_URL, [this.props.tdata.id, month, year])
-
-        fetch(URL).then(response => response.json())
-            .then((data) => {
-                this.setState({
-                    month: month,
-                    month_view_data: data
-                })
-            });
+        fetchMonthData(this.props.tdata.id, m, y).then((data) => {
+            this.setState({
+                month: m,
+                month_view_data: data
+            })
+        }).catch(error => console.log(error));
     }
 
     onPanelChange(value, mode) {
         const m = value.month() + 1
         const y = value.year()
-        if (this.state.month !== m) this.fetchMonthData(m, y)
+        if (this.state.month !== m)
+            fetchMonthData(this.props.tdata.id, m, y).then((data) => {
+                this.setState({
+                    month: m,
+                    month_view_data: data
+                })
+            }).catch(error => console.log(error));
     }
 
     getData(date, month) {
@@ -66,7 +70,6 @@ class MonthView extends React.Component {
     }
 
     dateCellRender(value) {
-
         var month = value.month()
         var month_data = this.getData(value.format('YYYY-MM-DD'), month)
         return (
@@ -78,34 +81,150 @@ class MonthView extends React.Component {
         );
     }
 
-    toggleEditor(date) {
-        var editorClosing = this.state.editor
-        var tmpdate = this.state.editorDate
+    toggleEditor() {
         this.setState(prevState => {
                 return {
                     editor: !prevState.editor,
-                    editorDate: date
+                    slotdataFetched: !prevState.slotdataFetched
                 }
             }
         )
 
+        var editorClosing = this.state.editor
         if (editorClosing) {
-            var d = new Date(tmpdate)
+            var d = new Date(this.state.date)
             var m = d.getMonth() + 1
             var y = d.getFullYear()
-            this.fetchMonthData(m, y)
+            fetchMonthData(this.props.tdata.id, m, y).then((data) => {
+                this.setState({
+                    month: m,
+                    month_view_data: data,
+                })
+            }).catch(error => console.log(error));
         }
     }
 
+    fetchSlotsForDate = (date) => {
+        return fetchSoltData(this.props.tdata.id, date)
+            .then(
+                data => {
+                    this.setState({
+                        slotdata: data,
+                        date: date,
+                        slotStates: this.parseAvailableSlot(data),
+                        currentSlotStates: this.parseAvailableSlot(data),
+                        btnDisabled: true
+                    });
+                }
+            )
+            .catch(error => console.log(error));
+    }
     onSelect(value) {
-        if (value.month() + 1 === this.state.month)
-            this.toggleEditor(value.format('YYYY-MM-DD'))
+        let date = value.format('YYYY-MM-DD')
+        if (value.month() + 1 === this.state.month) {
+            this.fetchSlotsForDate(date).then(() => this.toggleEditor())
+        }
     }
 
     disabledDate(value) {
         var d = new Date()
         return value._d < d
     }
+
+    fetchSoltData(tid, date) {
+        var URL = API.BASE_URL + format(API.SLOT_GET_API_URL, [tid, date])
+
+        return fetch(URL).then(response => response.json()).then(
+            data => {
+                this.setState({
+                    slotdata: data,
+                    date: date,
+                    slotStates: this.parseAvailableSlot(data),
+                    currentSlotStates: this.parseAvailableSlot(data),
+                    btnDisabled: true
+                });
+            }
+        )
+    }
+
+    parseAvailableSlot(slotData) {
+        return slotData.map(slot => {
+            return {
+                id: slot.id,
+                status: slot.slot.length > 0,
+                available_slot_id: slot.slot.length > 0 ? slot.slot[0].id : null
+            }
+        })
+    }
+
+    updateSlotState = (id, status) => {
+        this.setState(prevState => {
+            const newSlotStatus = prevState.currentSlotStates.map(slot => {
+                return {
+                    id: slot.id,
+                    status: slot.id.toString() === id ? status : slot.status,
+                    available_slot_id: slot.available_slot_id
+                }
+            })
+            return {
+                currentSlotStates: newSlotStatus,
+                btnDisabled: JSON.stringify(this.state.slotStates) === JSON.stringify(newSlotStatus)
+            }
+        })
+    }
+
+    APICall = (addSlotsList, delSlotsList) => {
+        if (addSlotsList.length > 0 && delSlotsList.length > 0) {
+            addSlots(JSON.stringify(addSlotsList)).then(response => {
+                if (response.status === 201) {
+                    console.log("Slots added")
+                }
+            }).then(() => {
+                delSlots(this.props.tdata.id, JSON.stringify(delSlotsList))
+                    .then(response => {
+                    if (response.status === 204) {
+                        console.log("Slots Deleted")
+                        this.fetchSlotsForDate(this.state.date).catch(error => console.log(error));
+                    }
+                }).catch(error => console.log(error));
+            }).catch(error => console.log(error));
+        }
+        else if (addSlotsList.length > 0) {
+            addSlots(JSON.stringify(addSlotsList)).then(response => {
+                if (response.status === 201) {
+                    console.log("Slots added")
+                }
+            }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
+        }
+        else if (delSlotsList.length > 0) {
+            delSlots(this.props.tdata.id, JSON.stringify(delSlotsList)).then(response => {
+                if (response.status === 201) {
+                    console.log("Slots added")
+                }
+            }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
+        }
+    }
+
+    handleSave = () => {
+        const changedSlots = this.state.currentSlotStates.filter(slot => {
+            const id = slot.id
+            return slot.status !== this.state.slotStates.filter(slot => {
+                return slot.id === id
+            })[0].status
+        })
+        const addSlots = changedSlots.filter(slot => slot.status).map(slot => {
+            return {
+                date: this.state.date,
+                status: 1,
+                teacher_id: this.props.tdata.id,
+                validslot_id: slot.id
+            }
+        })
+        const delSlots = changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id)
+
+        this.APICall(addSlots, delSlots)
+    }
+
 
     render() {
         return (
@@ -120,9 +239,14 @@ class MonthView extends React.Component {
                 </Container>
                 <Editor
                     show={this.state.editor}
-                    date={this.state.editorDate}
+                    date={this.state.date}
                     tdata={this.props.tdata}
+                    slotdata={this.state.slotdata}
+                    slotDataFetched={this.state.slotdataFetched}
+                    updateSlotState={this.updateSlotState}
+                    handleSave={this.handleSave}
                     handleClose={this.toggleEditor}
+                    btnDisabled={this.state.btnDisabled}
                 />
             </div>
         )

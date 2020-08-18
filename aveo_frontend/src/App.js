@@ -2,7 +2,8 @@ import React from "react";
 import Header from "./components/Header";
 import TeacherForm from "./components/TeacherForm";
 import MonthView from "./components/MonthView";
-import { API, format } from "./URLs"
+import { API } from "./URLs"
+import {getTeacher} from "./APIs"
 
 
 class App extends React.Component {
@@ -13,21 +14,7 @@ class App extends React.Component {
             data: JSON.parse(localStorage.getItem(API.USER_KEY)) || ""
         }
         if (this.state.data !== "") this.state.isLoggedIn = true
-        this.getTeacher = this.getTeacher.bind(this)
         this.handleLogout = this.handleLogout.bind(this)
-    }
-
-    getTeacher(id) {
-        const URL = API.BASE_URL + format(API.TEACHER_API_URL, [id])
-
-        fetch(URL).then(response => response.json())
-            .then((data) => {
-                localStorage.setItem(API.USER_KEY, JSON.stringify(data));
-                this.setState({
-                    isLoggedIn: true,
-                    data: data
-                })
-            });
     }
 
     handleLogout() {
@@ -36,6 +23,15 @@ class App extends React.Component {
             isLoggedIn: false,
             data: ""
         })
+    }
+    handleBtnClick = (id) => {
+        getTeacher(id).then((data) => {
+            localStorage.setItem(API.USER_KEY, JSON.stringify(data));
+            this.setState({
+                isLoggedIn: true,
+                data: data
+            })
+        }).catch(error => console.log(error));
     }
 
     render() {
@@ -46,7 +42,7 @@ class App extends React.Component {
                     logout={this.handleLogout}
                 />
                 {!this.state.isLoggedIn
-                    ? <TeacherForm handleSubmit={this.getTeacher} />
+                    ? <TeacherForm handleSubmit={this.handleBtnClick} />
                     : <MonthView tdata={this.state.data} />
                 }
             </div>

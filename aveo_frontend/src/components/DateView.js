@@ -1,8 +1,7 @@
 // Example Usage of DateView component
 // <DateView tdata={teacher object} date={"2020-08-20"} baseurl={"http://127.0.0.1:8000/"} />
 
-
-import React, {useState} from 'react'
+import React from 'react'
 import {StyleSheet, css} from 'aphrodite'
 import {Container} from "react-bootstrap"
 
@@ -82,7 +81,6 @@ class SlotUnit extends React.Component {
                 background: "#ffffff"
             }
         })
-        console.log(this.state.marked? styleSheet.marked :styleSheet.unmarked)
         return (
             <div>
                 <Container fluid='md' className={css(styles.container)} style={this.state.marked? {background: "#007bff",color: "#ffffff"} :{background: "#ffffff"} } >

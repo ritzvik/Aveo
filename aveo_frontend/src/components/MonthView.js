@@ -6,7 +6,6 @@ import Editor from "./Editor"
 import {Container} from "react-bootstrap";
 import {API, format} from "../URLs";
 import {fetchMonthData, fetchSoltData, addSlots, delSlots} from "../APIs"
-import DateView from "./DateView";
 
 class MonthView extends React.Component {
     constructor(props) {
@@ -41,18 +40,6 @@ class MonthView extends React.Component {
             })
         }).catch(error => console.log(error));
     }
-
-    // fetchMonthData(month, year) {
-    //     const URL = API.BASE_URL + format(API.MONTH_API_URL, [this.props.tdata.id, month, year])
-    //
-    //     fetch(URL).then(response => response.json())
-    //         .then((data) => {
-    //             this.setState({
-    //                 month: month,
-    //                 month_view_data: data
-    //             })
-    //         });
-    // }
 
     onPanelChange(value, mode) {
         const m = value.month() + 1

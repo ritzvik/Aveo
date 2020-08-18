@@ -6,10 +6,12 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.teacheravailability.adaptors.DaySelectAdaptor
+import com.example.teacheravailability.adaptors.ValidSlotViewAdaptor
 import com.example.teacheravailability.adaptors.makeSmallDays
 import com.example.teacheravailability.models.Teacher
 import com.example.teacheravailability.models.ValidSlot
@@ -24,6 +26,8 @@ class BulkAddDialog : DialogFragment() {
 
     private var validSlots: List<ValidSlot> = listOf()
     private val smallDays = makeSmallDays()
+    private val triggerValidSlotView = MutableLiveData<Boolean>(false)
+    private var placeholderValidSlots = listOf<ValidSlot>()
 
     companion object {
 
@@ -80,6 +84,8 @@ class BulkAddDialog : DialogFragment() {
                 if (response != null) {
                     if (response.isSuccessful) {
                         validSlots = response.body()!!
+                        triggerValidSlotView.value = !(triggerValidSlotView.value!!)
+
                     } else { // application level failure
                         Toast.makeText(
                             context,
@@ -94,6 +100,42 @@ class BulkAddDialog : DialogFragment() {
                 Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun displayValidSlots() {
+        if (validSlots.isNotEmpty()) {
+
+            var timings = mutableListOf<String>()
+            var timingsTemp = mutableListOf<String>()
+            val placeholderValidSlotsMutable = mutableListOf<ValidSlot>()
+            var smallDaysSelected = smallDays.count { it.selected.value!! }
+
+            validSlots.forEach { s ->
+
+                if (smallDays[s.day].selected.value!!) {
+                    timings.add(s.start_time!!)
+                }
+            }
+            timings.forEach { t ->
+                if (timings.count{ it == t} == smallDaysSelected){
+                    timingsTemp.add(t)
+                }
+            }
+            timings = timingsTemp.toSet().toMutableList()
+
+            timings.forEach { t ->
+                placeholderValidSlotsMutable.add(ValidSlot(-1,-1,t))
+            }
+            placeholderValidSlots = placeholderValidSlotsMutable.toList()
+
+
+            val validSlotViewAdaptor = ValidSlotViewAdaptor(placeholderValidSlots)
+            validSlotViewAdaptor!!.initializeAdaptor()
+            slotSelectorRecyclerView.apply {
+                layoutManager = LinearLayoutManager(activity)
+                adapter = validSlotViewAdaptor
+            }
+        }
     }
 
     override fun onCreateView(
@@ -118,9 +160,15 @@ class BulkAddDialog : DialogFragment() {
 
         smallDays.forEach { d ->
             d.selected.observe(viewLifecycleOwner, Observer { newSelectedStatus ->
-                Toast.makeText(context, "!!", Toast.LENGTH_SHORT).show()
+                displayValidSlots()
             })
         }
+        triggerValidSlotView.observe(viewLifecycleOwner, Observer { t ->
+            displayValidSlots()
+        })
+
+
+
         super.onViewCreated(view, savedInstanceState)
     }
 

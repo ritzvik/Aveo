@@ -3,7 +3,8 @@ package com.example.teacheravailability.models
 data class ValidSlot (
     var id: Int = 0,
     var day: Int = 0,
-    var start_time: String? = null
+    var start_time: String? = null,
+    var selectedValidSlotViewHolder: Boolean = false
 )
 
 data class ValidSlotAugmented (

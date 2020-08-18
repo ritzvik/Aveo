@@ -21,7 +21,7 @@ fun makeSmallDays(): List<SmallDay> {
     val dayPosition: List<Int> = listOf(0,1,2,3,4,5,6)
 
     dayTexts.zip(dayPosition).forEach{ it ->
-        mutableSmallDayList.add(SmallDay(it.second, it.first, MutableLiveData(false)))
+        mutableSmallDayList.add(SmallDay(it.second, it.first, MutableLiveData(true)))
     }
 
     return mutableSmallDayList.toList()

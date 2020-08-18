@@ -82,7 +82,6 @@ class SlotUnit extends React.Component {
                 background: "#ffffff"
             }
         })
-        console.log(this.state.marked? styleSheet.marked :styleSheet.unmarked)
         return (
             <div>
                 <Container fluid='md' className={css(styles.container)} style={this.state.marked? {background: "#007bff",color: "#ffffff"} :{background: "#ffffff"} } >

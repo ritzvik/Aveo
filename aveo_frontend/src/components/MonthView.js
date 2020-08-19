@@ -3,7 +3,8 @@ import {Calendar, Badge} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
-import {Container} from "react-bootstrap";
+import BulkEditor from "./BulkEditor"
+import {Container, Button} from "react-bootstrap";
 import {API, format} from "../URLs";
 import {fetchMonthData, fetchSoltData, addSlots, delSlots} from "../APIs"
 
@@ -19,7 +20,12 @@ class MonthView extends React.Component {
             slotdataFetched: false,
             slotStates: null,
             currentSlotStates: null,
-            btnDisabled: true
+            btnDisabled: true,
+
+            bulkEditor: false,
+            days : null,
+            validSlots: null,
+            markedCommonSLots: null
         }
         this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
@@ -39,6 +45,7 @@ class MonthView extends React.Component {
                 month_view_data: data
             })
         }).catch(error => console.log(error));
+        this.mapDays()
     }
 
     onPanelChange(value, mode) {
@@ -183,7 +190,7 @@ class MonthView extends React.Component {
                 delSlots(this.props.tdata.id, JSON.stringify(delSlotsList))
                     .then(response => {
                     if (response.status === 204) {
-                        console.log("Slots Deleted")
+                        console.log("Slots deleted")
                         this.fetchSlotsForDate(this.state.date).catch(error => console.log(error));
                     }
                 }).catch(error => console.log(error));
@@ -198,8 +205,8 @@ class MonthView extends React.Component {
         }
         else if (delSlotsList.length > 0) {
             delSlots(this.props.tdata.id, JSON.stringify(delSlotsList)).then(response => {
-                if (response.status === 201) {
-                    console.log("Slots added")
+                if (response.status === 204) {
+                    console.log("Slots deleted")
                 }
             }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
         }
@@ -225,6 +232,38 @@ class MonthView extends React.Component {
         this.APICall(addSlots, delSlots)
     }
 
+    // Bulk Editor
+    mapDays = () => {
+        let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        let mapping = []
+        for(let i = 0; i <7; i++ ){
+            mapping.push({
+                day: days[i],
+                marked: true
+            })
+        }
+        this.setState(()=> {
+            return {days: mapping}
+        })
+    }
+
+    toggleBulkEditor = () => {
+        this.setState(prevState => {
+            return {bulkEditor: !prevState.bulkEditor}
+        })
+    }
+    updateDays = (weekDay) => {
+        this.setState(prevState => {
+            return {
+                days: prevState.days.map(day => {
+                    return {
+                        day: day.day,
+                        marked: weekDay===day.day ? !day.marked: day.marked
+                    }
+                })
+            }
+        })
+    }
 
     render() {
         return (
@@ -248,6 +287,13 @@ class MonthView extends React.Component {
                     handleClose={this.toggleEditor}
                     btnDisabled={this.state.btnDisabled}
                 />
+                <BulkEditor
+                    show={this.state.bulkEditor}
+                    days={this.state.days}
+                    updateDays={this.updateDays}
+                    handleClose={this.toggleBulkEditor}
+                />
+                <Button variant="primary" onClick={this.toggleBulkEditor}>Bulk Availability</Button>
             </div>
         )
     }

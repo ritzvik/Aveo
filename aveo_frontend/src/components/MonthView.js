@@ -6,7 +6,7 @@ import Editor from "./Editor"
 import BulkEditor from "./BulkEditor"
 import {Container, Button} from "react-bootstrap";
 import {API, format} from "../URLs";
-import {fetchMonthData, fetchSoltData, addSlots, delSlots} from "../APIs"
+import {fetchMonthData, fetchSoltData, addSlots, delSlots, fetchValidSlots} from "../APIs"
 
 class MonthView extends React.Component {
     constructor(props) {
@@ -23,7 +23,7 @@ class MonthView extends React.Component {
             btnDisabled: true,
 
             bulkEditor: false,
-            days : null,
+            days: null,
             validSlots: null,
             markedCommonSLots: null
         }
@@ -46,6 +46,7 @@ class MonthView extends React.Component {
             })
         }).catch(error => console.log(error));
         this.mapDays()
+        this.fetchAndParseValidSlots()
     }
 
     onPanelChange(value, mode) {
@@ -89,6 +90,7 @@ class MonthView extends React.Component {
     }
 
     toggleEditor() {
+        const editorClosing = this.state.editor
         this.setState(prevState => {
                 return {
                     editor: !prevState.editor,
@@ -96,8 +98,6 @@ class MonthView extends React.Component {
                 }
             }
         )
-
-        var editorClosing = this.state.editor
         if (editorClosing) {
             var d = new Date(this.state.date)
             var m = d.getMonth() + 1
@@ -126,6 +126,7 @@ class MonthView extends React.Component {
             )
             .catch(error => console.log(error));
     }
+
     onSelect(value) {
         let date = value.format('YYYY-MM-DD')
         if (value.month() + 1 === this.state.month) {
@@ -189,21 +190,19 @@ class MonthView extends React.Component {
             }).then(() => {
                 delSlots(this.props.tdata.id, JSON.stringify(delSlotsList))
                     .then(response => {
-                    if (response.status === 204) {
-                        console.log("Slots deleted")
-                        this.fetchSlotsForDate(this.state.date).catch(error => console.log(error));
-                    }
-                }).catch(error => console.log(error));
+                        if (response.status === 204) {
+                            console.log("Slots deleted")
+                            this.fetchSlotsForDate(this.state.date).catch(error => console.log(error));
+                        }
+                    }).catch(error => console.log(error));
             }).catch(error => console.log(error));
-        }
-        else if (addSlotsList.length > 0) {
+        } else if (addSlotsList.length > 0) {
             addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
                     console.log("Slots added")
                 }
             }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
-        }
-        else if (delSlotsList.length > 0) {
+        } else if (delSlotsList.length > 0) {
             delSlots(this.props.tdata.id, JSON.stringify(delSlotsList)).then(response => {
                 if (response.status === 204) {
                     console.log("Slots deleted")
@@ -236,13 +235,13 @@ class MonthView extends React.Component {
     mapDays = () => {
         let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
         let mapping = []
-        for(let i = 0; i <7; i++ ){
+        for (let i = 0; i < 7; i++) {
             mapping.push({
                 day: days[i],
                 marked: true
             })
         }
-        this.setState(()=> {
+        this.setState(() => {
             return {days: mapping}
         })
     }
@@ -252,17 +251,69 @@ class MonthView extends React.Component {
             return {bulkEditor: !prevState.bulkEditor}
         })
     }
+
     updateDays = (weekDay) => {
         this.setState(prevState => {
+            const updatedDays = prevState.days.map(day => {
+                return {
+                    day: day.day,
+                    marked: weekDay === day.day ? !day.marked : day.marked
+                }
+            })
+            const intersection = this.findCommonSlots(updatedDays)
             return {
-                days: prevState.days.map(day => {
-                    return {
-                        day: day.day,
-                        marked: weekDay===day.day ? !day.marked: day.marked
-                    }
-                })
+                days: updatedDays,
+                markedCommonSLots: intersection
             }
         })
+
+    }
+
+    updateBulkSlotState = () => {
+        console.log("test")
+    }
+
+    fetchAndParseValidSlots = () => {
+        fetchValidSlots().then(data => {
+            let validSlotsMap = new Map()
+            let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+            for (let i = 0; i < 7; i++) validSlotsMap[days[i]] = {}
+            data.map(slot => {
+                validSlotsMap[days[slot.day]][slot.start_time] = slot.id
+            })
+            this.setState(() => {
+                return {
+                    validSlots: validSlotsMap
+                }
+            })
+        }).then(() => {
+            const intersection = this.findCommonSlots(this.state.days)
+            this.setState(() => {
+                return {
+                    markedCommonSLots: intersection
+                }
+            })
+        })
+    }
+
+    findCommonSlots = (markedDays) => {
+        const validSlots = this.state.validSlots
+        markedDays = markedDays.filter(day => day.marked)
+        if (markedDays.length >0 ) {
+            let intersection = new Set(Object.keys(validSlots[markedDays[0].day]))
+            markedDays.forEach((day) => {
+                let next = new Set(Object.keys(validSlots[day.day]))
+                intersection = new Set([...intersection].filter(slot => next.has(slot)))
+            })
+            intersection = [...intersection].map(slot => {
+                return {
+                    start_time: slot,
+                    marked: false
+                }
+            })
+            return intersection
+        }
+        else return []
     }
 
     render() {
@@ -292,6 +343,8 @@ class MonthView extends React.Component {
                     show={this.state.bulkEditor}
                     days={this.state.days}
                     updateDays={this.updateDays}
+                    updateBulkSlotState={this.updateBulkSlotState}
+                    commonSlots={this.state.markedCommonSLots}
                     handleClose={this.toggleBulkEditor}
                 />
                 }

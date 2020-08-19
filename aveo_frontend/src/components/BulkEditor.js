@@ -1,5 +1,6 @@
 import React from "react";
 import {Button, Modal, Input, Form, Col} from "react-bootstrap"
+import SlotUnit from "./SlotUnit";
 
 const BulkEditor = props => {
     const StlyeSheet = {
@@ -24,6 +25,7 @@ const BulkEditor = props => {
         }
     }
     let checkBoxDays = null
+    let slots = null
     if (props.show) {
         checkBoxDays = props.days.map(day => {
             return <label key={day.day} style={{padding: "5px 20px"}}>
@@ -34,8 +36,17 @@ const BulkEditor = props => {
                 <span style={{padding: 5}}>{day.day.charAt(0).toUpperCase() + day.day.slice(1)}</span>
             </label>
         })
+        slots = props.commonSlots.map(slot => {
+            return <SlotUnit
+                key={slot.start_time}
+                id={slot.start_time}
+                marked={slot.marked}
+                start_time={slot.start_time}
+                updateSlotState={props.updateBulkSlotState}
+            />
+        })
     }
-    console.log(props.days)
+
     return (
         <div>
             <Modal show={props.show} onHide={props.handleClose} centered size="xl"
@@ -46,28 +57,18 @@ const BulkEditor = props => {
                 <Modal.Body>
                     <Form style={StlyeSheet.Form}>
                         <Form.Row style={StlyeSheet.Row}>
-                            <Col sm="2" style={StlyeSheet.Col}>
-                                <Form.Label>Start Date: </Form.Label>
-                            </Col>
-                            <Col sm="3">
-                                <Form.Control type="date"/>
-                            </Col>
+                            <Col sm="2" style={StlyeSheet.Col}><Form.Label>Start Date: </Form.Label></Col>
+                            <Col sm="3"><Form.Control type="date"/></Col>
                         </Form.Row>
                         <Form.Row style={StlyeSheet.Row}>
-                            <Col sm="2" style={StlyeSheet.Col}>
-                                <Form.Label>End Date: </Form.Label>
-                            </Col>
-                            <Col sm="3">
-                                <Form.Control type="date"/>
-                            </Col>
+                            <Col sm="2" style={StlyeSheet.Col}><Form.Label>End Date: </Form.Label></Col>
+                            <Col sm="3"><Form.Control type="date"/></Col>
                         </Form.Row>
+                        <Form.Row><Col>{checkBoxDays}</Col></Form.Row>
                         <Form.Row>
-                            <Col style={StlyeSheet.BtnCol}>
-                            </Col>
+                            <Col><Form.Label style={{fontSize: 20, padding: "0 5px"}}>Select Slots: </Form.Label></Col>
                         </Form.Row>
-                        <Form.Row>
-                            {checkBoxDays}
-                        </Form.Row>
+                        {slots}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>

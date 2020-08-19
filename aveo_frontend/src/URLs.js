@@ -6,7 +6,8 @@ export const API = {
     MONTH_API_URL: "ta2/api/availableslot/tid/{0}/m/{1}/y/{2}/",
     SLOT_GET_API_URL: "ta2/api/availableslot/tid/{0}/date/{1}/",
     SLOT_POST_API: "ta2/api/availableslot/",
-    SLOT_DELETE_API: "ta2/api/availableslot/tid/{0}/delete/"
+    SLOT_DELETE_API: "ta2/api/availableslot/tid/{0}/delete/",
+    VALID_SLOTS_GET_API: "ta2/api/validslot/"
 }
 
 export const format = (string, arg) => {

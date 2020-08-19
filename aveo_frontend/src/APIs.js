@@ -59,3 +59,8 @@ export const delSlots = (id, delSlotsList) => {
     return fetch(URL, requestOptions).then(response)
 }
 
+// Get valid slots
+export const fetchValidSlots = () => {
+    const URL = API.BASE_URL + API.VALID_SLOTS_GET_API
+    return fetchAPI(URL)
+}

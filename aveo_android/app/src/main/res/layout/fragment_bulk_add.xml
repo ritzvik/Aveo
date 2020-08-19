@@ -47,27 +47,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
+    <TextView
         android:id="@+id/startDate"
         android:layout_width="189dp"
         android:layout_height="47dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="Start Date"
-        android:inputType="date"
+        android:hint="Start Date YYYY-MM-DD"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialogTextView" />
 
-    <EditText
+    <TextView
         android:id="@+id/endDate"
         android:layout_width="189dp"
         android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        android:ems="10"
-        android:hint="End Date"
-        android:inputType="date"
+        android:text="End Date YYYY-MM-DD"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startDate" />
 

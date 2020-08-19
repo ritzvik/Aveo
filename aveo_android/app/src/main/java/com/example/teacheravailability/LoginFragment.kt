@@ -21,31 +21,6 @@ import retrofit2.Response
  */
 class LoginFragment : Fragment() {
 
-    private fun loadTeachers() {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getTeacherList()
-
-        requestCall.enqueue(object : Callback<List<Teacher>> {
-            override fun onResponse(
-                call: Call<List<Teacher>>?,
-                response: Response<List<Teacher>>?
-            ) {
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        val teacherList = response.body()!!
-                    } else { // application level failure
-                        Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<List<Teacher>>?, t: Throwable?) {
-                Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
     private fun loadTeacherByIDandNavigate(id: Int) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getTeacherByID(id)

@@ -54,6 +54,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:hint="Start Date YYYY-MM-DD"
+        android:textColor="#40000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialogTextView" />
 
@@ -64,6 +65,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:text="End Date YYYY-MM-DD"
+        android:textColor="#40000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startDate" />
 

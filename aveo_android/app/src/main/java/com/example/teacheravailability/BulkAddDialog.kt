@@ -26,6 +26,8 @@ import com.example.teacheravailability.models.ValidSlot
 import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
 import kotlinx.android.synthetic.main.fragment_bulk_add.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -168,37 +170,40 @@ class BulkAddDialog : DialogFragment() {
     }
 
     private fun displayValidSlots() {
-        if (validSlots.isNotEmpty()) {
+        doAsync {
+            if (validSlots.isNotEmpty()) {
 
-            var timings = mutableListOf<String>()
-            var timingsTemp = mutableListOf<String>()
-            val placeholderValidSlotsMutable = mutableListOf<ValidSlot>()
-            var smallDaysSelected = smallDays.count { it.selected.value!! }
+                var timings = mutableListOf<String>()
+                var timingsTemp = mutableListOf<String>()
+                val placeholderValidSlotsMutable = mutableListOf<ValidSlot>()
+                var smallDaysSelected = smallDays.count { it.selected.value!! }
 
-            validSlots.forEach { s ->
+                validSlots.forEach { s ->
 
-                if (smallDays[s.day].selected.value!!) {
-                    timings.add(s.start_time!!)
+                    if (smallDays[s.day].selected.value!!) {
+                        timings.add(s.start_time!!)
+                    }
                 }
-            }
-            timings.forEach { t ->
-                if (timings.count { it == t } == smallDaysSelected) {
-                    timingsTemp.add(t)
+                timings.forEach { t ->
+                    if (timings.count { it == t } == smallDaysSelected) {
+                        timingsTemp.add(t)
+                    }
                 }
-            }
-            timings = timingsTemp.toSet().toMutableList()
+                timings = timingsTemp.toSet().toMutableList()
 
-            timings.forEach { t ->
-                placeholderValidSlotsMutable.add(ValidSlot(-1, -1, t))
-            }
-            placeholderValidSlots = placeholderValidSlotsMutable.toList()
+                timings.forEach { t ->
+                    placeholderValidSlotsMutable.add(ValidSlot(-1, -1, t))
+                }
+                placeholderValidSlots = placeholderValidSlotsMutable.toList()
 
-
-            val validSlotViewAdaptor = ValidSlotViewAdaptor(placeholderValidSlots)
-            validSlotViewAdaptor!!.initializeAdaptor()
-            slotSelectorRecyclerView.apply {
-                layoutManager = LinearLayoutManager(activity)
-                adapter = validSlotViewAdaptor
+                uiThread {
+                    val validSlotViewAdaptor = ValidSlotViewAdaptor(placeholderValidSlots)
+                    validSlotViewAdaptor.initializeAdaptor()
+                    slotSelectorRecyclerView.apply {
+                        layoutManager = LinearLayoutManager(activity)
+                        adapter = validSlotViewAdaptor
+                    }
+                }
             }
         }
     }
@@ -244,52 +249,56 @@ class BulkAddDialog : DialogFragment() {
 
     @SuppressLint("SimpleDateFormat")
     private fun executeSelections(startDateString: String, endDateString: String) {
-        val tID = arguments?.getInt(KEY_TID)!!
-        val newAvailableSlots = mutableListOf<AvailableSlot>()
-        var startDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
-        var endDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
+        doAsync {
+            val tID = arguments?.getInt(KEY_TID)!!
+            val newAvailableSlots = mutableListOf<AvailableSlot>()
+            var startDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
+            var endDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
 
-        try {
-            startDate = SimpleDateFormat("yyyy-MM-dd").parse(startDateString)!!
-            endDate = SimpleDateFormat("yyyy-MM-dd").parse((endDateString))!!
-            if (endDate.compareTo(startDate) < 0) {
-                throw Exception("Start Date more than End Date")
+            try {
+                startDate = SimpleDateFormat("yyyy-MM-dd").parse(startDateString)!!
+                endDate = SimpleDateFormat("yyyy-MM-dd").parse((endDateString))!!
+                if (endDate.compareTo(startDate) < 0) {
+                    throw Exception("Start Date more than End Date")
+                }
+            } catch (e: Exception) {
+                uiThread {
+                    Toast.makeText(
+                        context,
+                        "Make Sure you have entered the dates and Start Date is less than End Date!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@doAsync
             }
-        } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                "Make Sure you have entered the dates and Start Date is less than End Date!",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
 
-        val dateIter = DateIterator(startDate, endDate, 1)
-        while (dateIter.hasNext()) {
-            val d = dateIter.next()
-            val dString = dateObjToDateString(d)
+            val dateIter = DateIterator(startDate, endDate, 1)
+            while (dateIter.hasNext()) {
+                val d = dateIter.next()
+                val dString = dateObjToDateString(d)
 
-            if (smallDays[dayOfWeek(d)].selected.value!!) {
-                placeholderValidSlots.forEach { pvs ->
-                    if (pvs.selectedValidSlotViewHolder) {
-                        val start_time = pvs.start_time
-                        var validSlotObject = validSlots.find { s ->
-                            (s.start_time == start_time && s.day == dayOfWeek(d))
-                        }
-                        var validSlotID = validSlotObject!!.id
-                        val newAvailableSlot = AvailableSlot(null, dString, 1, tID, validSlotID)
-                        val alreadyAvailableSlot = alreadyAvailableSlots.find { aas ->
-                            (aas.date == dString && aas.validslot_id == validSlotID)
-                        }
-                        if (alreadyAvailableSlot == null) {
-                            newAvailableSlots.add(newAvailableSlot)
+                if (smallDays[dayOfWeek(d)].selected.value!!) {
+                    placeholderValidSlots.forEach { pvs ->
+                        if (pvs.selectedValidSlotViewHolder) {
+                            val start_time = pvs.start_time
+                            var validSlotObject = validSlots.find { s ->
+                                (s.start_time == start_time && s.day == dayOfWeek(d))
+                            }
+                            var validSlotID = validSlotObject!!.id
+                            val newAvailableSlot = AvailableSlot(null, dString, 1, tID, validSlotID)
+                            val alreadyAvailableSlot = alreadyAvailableSlots.find { aas ->
+                                (aas.date == dString && aas.validslot_id == validSlotID)
+                            }
+                            if (alreadyAvailableSlot == null) {
+                                newAvailableSlots.add(newAvailableSlot)
+                            }
                         }
                     }
                 }
             }
+            uiThread { addNewAvailableSlots(tID, newAvailableSlots.toList()) }
+            return@doAsync
         }
-        addNewAvailableSlots(tID, newAvailableSlots.toList())
-        return
     }
 
     override fun onCreateView(
@@ -297,7 +306,7 @@ class BulkAddDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater!!.inflate(R.layout.fragment_bulk_add, container, false)
+        return inflater.inflate(R.layout.fragment_bulk_add, container, false)
     }
 
     @SuppressLint("SetTextI18n")
@@ -307,8 +316,8 @@ class BulkAddDialog : DialogFragment() {
         fetchAllValidSlots()
         fetchAllAvailableSlotsByTeacherID(tID)
 
-        val daySelectAdaptor = DaySelectAdaptor(smallDays!!)
-        daySelectAdaptor!!.initializeAdaptor()
+        val daySelectAdaptor = DaySelectAdaptor(smallDays)
+        daySelectAdaptor.initializeAdaptor()
         daySelectorRecyclerView.apply {
             layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
             adapter = daySelectAdaptor

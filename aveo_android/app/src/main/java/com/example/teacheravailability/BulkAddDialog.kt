@@ -252,7 +252,7 @@ class BulkAddDialog : DialogFragment() {
         try {
             startDate = SimpleDateFormat("yyyy-MM-dd").parse(startDateString)!!
             endDate = SimpleDateFormat("yyyy-MM-dd").parse((endDateString))!!
-            if (endDate.compareTo(startDate) <= 0) {
+            if (endDate.compareTo(startDate) < 0) {
                 throw Exception("Start Date more than End Date")
             }
         } catch (e: Exception) {
@@ -261,6 +261,7 @@ class BulkAddDialog : DialogFragment() {
                 "Make Sure you have entered the dates and Start Date is less than End Date!",
                 Toast.LENGTH_SHORT
             ).show()
+            return
         }
 
         val dateIter = DateIterator(startDate, endDate, 1)
@@ -277,12 +278,18 @@ class BulkAddDialog : DialogFragment() {
                         }
                         var validSlotID = validSlotObject!!.id
                         val newAvailableSlot = AvailableSlot(null, dString, 1, tID, validSlotID)
-                        newAvailableSlots.add(newAvailableSlot)
+                        val alreadyAvailableSlot = alreadyAvailableSlots.find { aas ->
+                            (aas.date == dString && aas.validslot_id == validSlotID)
+                        }
+                        if (alreadyAvailableSlot == null) {
+                            newAvailableSlots.add(newAvailableSlot)
+                        }
                     }
                 }
             }
         }
         addNewAvailableSlots(tID, newAvailableSlots.toList())
+        return
     }
 
     override fun onCreateView(

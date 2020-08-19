@@ -1,8 +1,5 @@
 from datetime import datetime
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import generics
@@ -13,7 +10,6 @@ from .serializers import (
     AvailableSlotSerializer,
     ValidSlotSerializer,
     ValidSlotResultsetSerializer,
-    TestSerializer,
 )
 from .models import Teacher, AvailableSlot, ValidSlot
 
@@ -26,50 +22,14 @@ def day_from_date(datestring: str):
 
 
 @api_view(["GET"])
-def validslot__day(request, day):
-    objs = ValidSlot.objects.filter(day=day)
-    serializer = ValidSlotSerializer(objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def validslot__date(request, date):
-    day = day_from_date(date)
-    objs = ValidSlot.objects.filter(day=day)
-    serializer = ValidSlotSerializer(objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def availableslot___teacher_id(request, teacher_id):
+def availableslot_teacher_id(request, teacher_id):
     objs = AvailableSlot.objects.filter(teacher_id__id=teacher_id)
     serializer = AvailableSlotSerializer(objs, many=True)
     return Response(serializer.data)
 
 
 @api_view(["GET"])
-def availableslot___teacher_id__validslot_day(request, teacher_id, day):
-    objs = AvailableSlot.objects.filter(
-        teacher_id__id=teacher_id, validslot_id__day=day
-    )
-    serializer = AvailableSlotSerializer(objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def availableslot___teacher_id__validslot_day__date(request, teacher_id, day, date):
-    objs = ValidSlot.objects.filter(day=day).prefetch_related(
-        Prefetch(
-            "slot",
-            queryset=AvailableSlot.objects.filter(teacher_id=teacher_id, date=date),
-        )
-    )
-    serializer = ValidSlotResultsetSerializer(objs, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def availableslot___teacher_id__date(request, teacher_id, date):
+def availableslot_teacher_id_date(request, teacher_id, date):
     day = day_from_date(date)
     objs = ValidSlot.objects.filter(day=day).prefetch_related(
         Prefetch(
@@ -82,7 +42,7 @@ def availableslot___teacher_id__date(request, teacher_id, date):
 
 
 @api_view(["GET"])
-def availableslot___teacher_id__month__year(request, teacher_id, month, year):
+def availableslot_teacher_id_month_year(request, teacher_id, month, year):
     def _enddate(month: int, year: int):
         enddate_lists = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         if year % 4 == 0:
@@ -99,8 +59,9 @@ def availableslot___teacher_id__month__year(request, teacher_id, month, year):
     serializer = AvailableSlotSerializer(objs, many=True)
     return Response(serializer.data)
 
-@api_view(["DELETE","GET"])
-def availableslot___teacher_id_list(request,teacher_id):
+
+@api_view(["DELETE", "GET"])
+def availableslot_teacher_id_list(request, teacher_id):
     objs = AvailableSlot.objects.filter(teacher_id=teacher_id, id__in=request.data)
     print(objs)
     if len(objs) < len(request.data):
@@ -115,7 +76,8 @@ def availableslot___teacher_id_list(request,teacher_id):
         serializer = AvailableSlotSerializer(objs, many=True)
         return Response(serializer.data)
 
-class CreateView_Teacher(generics.ListCreateAPIView):
+
+class CreateViewTeacher(generics.ListCreateAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
 
@@ -123,7 +85,7 @@ class CreateView_Teacher(generics.ListCreateAPIView):
         serializer.save()
 
 
-class CreateView_ValidSlot(generics.ListCreateAPIView):
+class CreateViewValidSlot(generics.ListCreateAPIView):
     queryset = ValidSlot.objects.all()
     serializer_class = ValidSlotSerializer
 
@@ -131,7 +93,7 @@ class CreateView_ValidSlot(generics.ListCreateAPIView):
         serializer.save()
 
 
-class CreateView_AvailableSlot(generics.ListCreateAPIView):
+class CreateViewAvailableSlot(generics.ListCreateAPIView):
     queryset = AvailableSlot.objects.all()
     serializer_class = AvailableSlotSerializer
 
@@ -139,22 +101,11 @@ class CreateView_AvailableSlot(generics.ListCreateAPIView):
         serializer.save()
 
     def get_serializer(self, *args, **kwargs):
-            """ if an array is passed, set serializer to many """
-            if isinstance(kwargs.get('data', {}), list):
-                kwargs['many'] = True
-            return super(CreateView_AvailableSlot, self).get_serializer(*args, **kwargs)
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        return super(CreateViewAvailableSlot, self).get_serializer(*args, **kwargs)
 
-class DetailsView_Teacher(generics.RetrieveUpdateDestroyAPIView):
+
+class DetailsViewTeacher(generics.RetrieveUpdateDestroyAPIView):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
-
-
-class DetailsView_ValidSlot(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ValidSlot.objects.all()
-    serializer_class = ValidSlotSerializer
-
-
-class DetailsView_AvailableSlot(generics.RetrieveUpdateDestroyAPIView):
-    queryset = AvailableSlot.objects.all()
-    serializer_class = AvailableSlotSerializer
-

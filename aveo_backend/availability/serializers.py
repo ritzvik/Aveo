@@ -26,11 +26,3 @@ class ValidSlotResultsetSerializer(serializers.ModelSerializer):
     class Meta:
         model = ValidSlot
         fields = "__all__"
-
-
-class TestSerializer(serializers.ModelSerializer):
-    validslot_id = ValidSlotSerializer()
-
-    class Meta:
-        model = AvailableSlot
-        fields = "__all__"

@@ -287,12 +287,14 @@ class MonthView extends React.Component {
                     handleClose={this.toggleEditor}
                     btnDisabled={this.state.btnDisabled}
                 />
+                {this.state.bulkEditor &&
                 <BulkEditor
                     show={this.state.bulkEditor}
                     days={this.state.days}
                     updateDays={this.updateDays}
                     handleClose={this.toggleBulkEditor}
                 />
+                }
                 <Button variant="primary" onClick={this.toggleBulkEditor}>Bulk Availability</Button>
             </div>
         )

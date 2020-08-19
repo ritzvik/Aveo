@@ -58,7 +58,7 @@ class SlotUnit extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            marked: this.props.slot.slot.length > 0
+            marked: this.props.marked
         }
     }
 
@@ -77,7 +77,7 @@ class SlotUnit extends React.Component {
                         <input style={{opacity: 0}} id={this.props.id} type="checkbox" readOnly
                                checked={this.state.marked}
                                onClick={this.updateSlot}/>
-                        {this.props.slot.start_time}
+                        {this.props.start_time}
                     </label>
                 </Container>
             </div>

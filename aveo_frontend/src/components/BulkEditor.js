@@ -1,7 +1,5 @@
 import React from "react";
 import {Button, Modal, Input, Form, Col} from "react-bootstrap"
-import Editor from "./Editor";
-import {css} from "aphrodite";
 
 const BulkEditor = props => {
     const StlyeSheet = {
@@ -25,17 +23,18 @@ const BulkEditor = props => {
             display: "flex"
         }
     }
-    let checkBoxDays =null
-    if(props.show){
+    let checkBoxDays = null
+    if (props.show) {
         checkBoxDays = props.days.map(day => {
-        return <label style={{padding: "5px 20px"}}>
+            return <label key={day.day} style={{padding: "5px 20px"}}>
                 <input id={day.day} type="checkbox" readOnly
                        checked={day.marked}
                        onClick={(event) => props.updateDays(event.target.id)}
-                    />
-            <span style={{padding: 5}}>{ day.day.charAt(0).toUpperCase() + day.day.slice(1)}</span>
+                />
+                <span style={{padding: 5}}>{day.day.charAt(0).toUpperCase() + day.day.slice(1)}</span>
             </label>
-})}
+        })
+    }
     console.log(props.days)
     return (
         <div>

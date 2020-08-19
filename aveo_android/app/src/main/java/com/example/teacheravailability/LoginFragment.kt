@@ -19,32 +19,7 @@ import retrofit2.Response
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
-
-    private fun loadTeachers() {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getTeacherList()
-
-        requestCall.enqueue(object : Callback<List<Teacher>> {
-            override fun onResponse(
-                call: Call<List<Teacher>>?,
-                response: Response<List<Teacher>>?
-            ) {
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        val teacherList = response.body()!!
-                    } else { // application level failure
-                        Toast.makeText(context, "Failed to retrieve items!", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<List<Teacher>>?, t: Throwable?) {
-                Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
+class LoginFragment : Fragment() {
 
     private fun loadTeacherByIDandNavigate(id: Int) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
@@ -58,7 +33,7 @@ class FirstFragment : Fragment() {
 
                         val teacherFullName =
                             teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
-                        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(
+                        val action = LoginFragmentDirections.actionLoginFragmentToCalendarViewFragment(
                             teacherFullName, id
                         )
                         findNavController().navigate(action)
@@ -83,7 +58,7 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_first, container, false)
+        return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

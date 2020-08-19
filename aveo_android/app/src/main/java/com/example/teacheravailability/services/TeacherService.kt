@@ -10,9 +10,6 @@ import retrofit2.http.*
 
 interface TeacherService {
 
-    @GET("ta2/api/teacher")
-    fun getTeacherList(): Call<List<Teacher>>
-
     @GET("ta2/api/teacher/{id}/")
     fun getTeacherByID(@Path("id") id: Int): Call<Teacher>
 

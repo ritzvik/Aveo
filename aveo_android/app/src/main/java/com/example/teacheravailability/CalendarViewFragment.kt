@@ -1,13 +1,11 @@
 package com.example.teacheravailability
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CalendarView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
@@ -29,34 +27,17 @@ import java.util.*
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class SecondFragment : Fragment() {
+class CalendarViewFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the slot_item for this fragment
-        return inflater.inflate(R.layout.fragment_second, container, false)
+        return inflater.inflate(R.layout.fragment_calendar_view, container, false)
     }
 
-    val args: SecondFragmentArgs by navArgs()
-
-//    private fun setUpLegacyCalendar(view: View, tID: Int) {
-//        val calendar = view.findViewById<CalendarView>(R.id.calendarView)
-//        calendar.setOnDateChangeListener { calendar, year, month, dayOfMonth ->
-//            val displayString =
-//                year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth.toString()
-//
-//            val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(
-//                displayString,
-//                tID,
-//                year,
-//                month,
-//                dayOfMonth
-//            )
-//            findNavController().navigate(action)
-//        }
-//    }
+    val args: CalendarViewFragmentArgs by navArgs()
 
     private fun slotsMarkedAvailable(
         id: Int,
@@ -119,7 +100,7 @@ class SecondFragment : Fragment() {
             val displayString =
                 year.toString() + "-" + (month).toString() + "-" + dayOfMonth.toString()
 
-            val action = SecondFragmentDirections.actionSecondFragmentToThirdFragment(
+            val action = CalendarViewFragmentDirections.actionCalendarViewFragmentToModifyAvailabilityFragment(
                 displayString,
                 tID,
                 year,

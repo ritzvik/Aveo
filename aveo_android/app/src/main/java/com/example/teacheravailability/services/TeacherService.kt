@@ -31,4 +31,7 @@ interface TeacherService {
 
     @GET("ta2/api/validslot/")
     fun getAllValidSlots(): Call<List<ValidSlot>>
+
+    @GET("ta2/api/availableslot/tid/{id}/")
+    fun getAllAvailableSlotsByTeacherID(@Path("id") id: Int): Call<List<AvailableSlot>>
 }

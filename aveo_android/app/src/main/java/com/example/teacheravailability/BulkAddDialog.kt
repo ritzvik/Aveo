@@ -56,6 +56,8 @@ class BulkAddDialog : DialogFragment() {
     private val smallDays = makeSmallDays()
     private val triggerValidSlotView = MutableLiveData<Boolean>(false)
     private var placeholderValidSlots = listOf<ValidSlot>()
+    private var alreadyAvailableSlots = listOf<AvailableSlot>()
+    private var alreadyAvailableSlotsFetched = false
 
     companion object {
 
@@ -97,6 +99,41 @@ class BulkAddDialog : DialogFragment() {
             override fun onFailure(call: Call<Teacher>?, t: Throwable?) {
                 Toast.makeText(context, "Error Occurred" + t.toString(), Toast.LENGTH_SHORT).show()
             }
+        })
+    }
+
+    private fun fetchAllAvailableSlotsByTeacherID(tID: Int) {
+        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
+        val requestCall = teacherService.getAllAvailableSlotsByTeacherID(tID)
+
+        requestCall.enqueue(object : Callback<List<AvailableSlot>> {
+            override fun onFailure(call: Call<List<AvailableSlot>>?, t: Throwable?) {
+                Toast.makeText(
+                    context,
+                    "Available Slots by Teacher ID couldn't be fetched | " + t.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            override fun onResponse(
+                call: Call<List<AvailableSlot>>?,
+                response: Response<List<AvailableSlot>>?
+            ) {
+                if (response != null) {
+                    if (response.isSuccessful) {
+                        alreadyAvailableSlots = response.body()!!
+                        alreadyAvailableSlotsFetched = true
+                        triggerValidSlotView.value = !(triggerValidSlotView.value!!)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Available Slots by Teacher ID couldn't be fetched! ",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+
         })
     }
 
@@ -261,6 +298,7 @@ class BulkAddDialog : DialogFragment() {
         val tID = arguments?.getInt(KEY_TID)!!
         displayTeacherName(tID, view.findViewById<TextView>(R.id.dialogTextView))
         fetchAllValidSlots()
+        fetchAllAvailableSlotsByTeacherID(tID)
 
         val daySelectAdaptor = DaySelectAdaptor(smallDays!!)
         daySelectAdaptor!!.initializeAdaptor()
@@ -335,7 +373,10 @@ class BulkAddDialog : DialogFragment() {
         doneButton.setOnClickListener { v ->
             val startDateString = startDateView.text!!.toString()
             val endDateString = endDateView.text!!.toString()
-            executeSelections(startDateString, endDateString)
+
+            if (validSlots.isNotEmpty() && alreadyAvailableSlotsFetched) {
+                executeSelections(startDateString, endDateString)
+            }
 
             val fm = view.findFragment<BulkAddDialog>()
             fm.dismiss()

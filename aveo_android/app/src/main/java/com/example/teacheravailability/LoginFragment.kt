@@ -19,7 +19,7 @@ import retrofit2.Response
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class LoginFragment : Fragment() {
 
     private fun loadTeachers() {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
@@ -58,7 +58,7 @@ class FirstFragment : Fragment() {
 
                         val teacherFullName =
                             teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
-                        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(
+                        val action = LoginFragmentDirections.actionLoginFragmentToCalendarViewFragment(
                             teacherFullName, id
                         )
                         findNavController().navigate(action)
@@ -83,7 +83,7 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_first, container, false)
+        return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

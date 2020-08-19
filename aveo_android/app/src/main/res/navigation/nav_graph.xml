@@ -3,27 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/LoginFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.teacheravailability.FirstFragment"
+        android:id="@+id/LoginFragment"
+        android:name="com.example.teacheravailability.LoginFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        tools:layout="@layout/fragment_login">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_LoginFragment_to_CalendarViewFragment"
+            app:destination="@id/CalendarViewFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.teacheravailability.SecondFragment"
+        android:id="@+id/CalendarViewFragment"
+        android:name="com.example.teacheravailability.CalendarViewFragment"
         android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        tools:layout="@layout/fragment_calendar_view">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_CalendarViewFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
         <argument
             android:name="teacherNameArg"
             app:argType="string"
@@ -32,14 +32,14 @@
             android:name="teacherIDArg"
             app:argType="integer" />
         <action
-            android:id="@+id/action_SecondFragment_to_ThirdFragment"
-            app:destination="@id/ThirdFragment" />
+            android:id="@+id/action_CalendarViewFragment_to_ModifyAvailabilityFragment"
+            app:destination="@id/ModifyAvailabilityFragment" />
     </fragment>
     <fragment
-        android:id="@+id/ThirdFragment"
-        android:name="com.example.teacheravailability.ThirdFragment"
+        android:id="@+id/ModifyAvailabilityFragment"
+        android:name="com.example.teacheravailability.ModifyAvailabilityFragment"
         android:label="Third Fragment"
-        tools:layout="@layout/fragment_third" >
+        tools:layout="@layout/fragment_modify_availability" >
         <argument
             android:name="dateString"
             app:argType="string"

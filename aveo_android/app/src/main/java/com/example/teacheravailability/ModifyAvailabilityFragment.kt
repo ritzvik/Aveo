@@ -14,7 +14,7 @@ import com.example.teacheravailability.models.ValidSlotAugmented
 import com.example.teacheravailability.models.ValidSlotsState
 import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
-import kotlinx.android.synthetic.main.fragment_third.*
+import kotlinx.android.synthetic.main.fragment_modify_availability.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,17 +23,17 @@ import java.util.ArrayList
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class ThirdFragment : Fragment() {
+class ModifyAvailabilityFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the slot_item for this fragment
-        return inflater.inflate(R.layout.fragment_third, container, false)
+        return inflater.inflate(R.layout.fragment_modify_availability, container, false)
     }
 
-    val args: ThirdFragmentArgs by navArgs()
+    val args: ModifyAvailabilityFragmentArgs by navArgs()
     // args.dateString: String  # string with format like "2020-8-20"
     // args.teacherIDArg: Int
     // args.year: Int

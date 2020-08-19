@@ -296,7 +296,14 @@ class BulkAddDialog : DialogFragment() {
                     }
                 }
             }
-            uiThread { addNewAvailableSlots(tID, newAvailableSlots.toList()) }
+            uiThread {
+                addNewAvailableSlots(tID, newAvailableSlots.toList())
+
+                if (newAvailableSlots.isNotEmpty()) {
+                    (activity as? MainActivity)?.mApp?.triggerMonthViewUpdate!!.value =
+                        !((activity as? MainActivity)?.mApp?.triggerMonthViewUpdate!!.value!!)
+                }
+            }
             return@doAsync
         }
     }

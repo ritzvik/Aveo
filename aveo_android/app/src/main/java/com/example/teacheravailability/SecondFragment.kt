@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.lifecycle.Observer
 import com.example.teacheravailability.models.AvailableSlot
 import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
@@ -57,7 +58,12 @@ class SecondFragment : Fragment() {
 //        }
 //    }
 
-    private fun slotsMarkedAvailable(id: Int, month: Int, year: Int, calendar: MaterialCalendarView) {
+    private fun slotsMarkedAvailable(
+        id: Int,
+        month: Int,
+        year: Int,
+        calendar: MaterialCalendarView
+    ) {
         calendar.removeDecorators()
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getAvailableSlotsByMonth(id, month, year)
@@ -72,13 +78,18 @@ class SecondFragment : Fragment() {
                         doAsync {
                             val dateSet: MutableSet<Date> = mutableSetOf()
                             val responseBody = response.body()!!
-                            responseBody.forEach{ slot ->
+                            responseBody.forEach { slot ->
                                 val dateObj = SimpleDateFormat("yyyy-MM-dd").parse(slot.date)
                                 dateSet.add(dateObj)
                             }
                             uiThread {
-                                dateSet.forEach{ d ->
-                                    calendar.addDecorators(DayDecorator(activity, CalendarDay.from(year, month, d.date)))
+                                dateSet.forEach { d ->
+                                    calendar.addDecorators(
+                                        DayDecorator(
+                                            activity,
+                                            CalendarDay.from(year, month, d.date)
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -94,12 +105,13 @@ class SecondFragment : Fragment() {
             }
         })
     }
+
     private fun setUpMaterialCalendar(view: View, tID: Int) {
         val calendar = view.findViewById<MaterialCalendarView>(R.id.materialCalendar)
         val initialDate = calendar.currentDate
         slotsMarkedAvailable(tID, initialDate.month, initialDate.year, calendar)
 
-        calendar.setOnDateChangedListener {calendar, date, selected ->
+        calendar.setOnDateChangedListener { calendar, date, selected ->
 
             val year = date.year
             val month = date.month
@@ -121,6 +133,17 @@ class SecondFragment : Fragment() {
 
             slotsMarkedAvailable(tID, date.month, date.year, calendar)
         }
+
+        (activity as? MainActivity)?.mApp?.triggerMonthViewUpdate!!.observe(
+            viewLifecycleOwner,
+            Observer { b ->
+                slotsMarkedAvailable(
+                    tID,
+                    calendar.currentDate.month,
+                    calendar.currentDate.year,
+                    calendar
+                )
+            })
     }
 
     @SuppressLint("SetTextI18n")

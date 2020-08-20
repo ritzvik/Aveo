@@ -353,6 +353,40 @@ class MonthView extends React.Component {
         } else return []
     }
 
+    handleBulkSave = (startDate, endDate) => {
+        startDate = new Date(startDate)
+        endDate = new Date(endDate)
+        let date = new Date(startDate)
+        let days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
+        const markedSlots = this.state.markedCommonSLots
+        const markedDays = this.state.days.filter(day => day.marked)
+        const validSlots = this.state.validSlots
+
+        let addSlots = []
+        while (date <= endDate){
+            const d = date.getDate()
+            const day = days[date.getDay()]
+            const m = date.getMonth()+1
+            const y = date.getFullYear()
+            const dateString = this.getDateString(d,m,y)
+            const validDay = markedDays.filter(dayItem => dayItem.day === day)
+
+            if (validDay.length > 0) {
+                addSlots = [...addSlots, ...markedSlots.filter(slot => slot.marked).map(slot => {
+                    const validSlotsID = validSlots[day][slot.start_time]
+                    return {
+                        date: dateString,
+                        status: 1,
+                        teacher_id: this.props.tdata.id,
+                        validslot_id: validSlotsID
+                    }
+                })]
+            }
+            date = new Date(date.setDate(date.getDate()+1))
+        }
+        console.log(addSlots)
+    }
+
     render() {
         return (
             <div>
@@ -363,6 +397,11 @@ class MonthView extends React.Component {
                         onSelect={this.onSelect}
                         disabledDate={this.disabledDate}
                     />
+                    <Button
+                        variant="primary"
+                        onClick={this.toggleBulkEditor}
+                        disabled={this.state.bulkBtnDisabled}
+                    >Bulk Availability</Button>
                 </Container>
                 <Editor
                     show={this.state.editor}
@@ -385,13 +424,10 @@ class MonthView extends React.Component {
                     updateBulkSlotState={this.updateBulkSlotState}
                     commonSlots={this.state.markedCommonSLots}
                     handleClose={this.toggleBulkEditor}
+                    handleSave={this.handleBulkSave}
                 />
                 }
-                <Button
-                    variant="primary"
-                    onClick={this.toggleBulkEditor}
-                    disabled={this.state.bulkBtnDisabled}
-                >Bulk Availability</Button>
+
             </div>
         )
     }

@@ -5,6 +5,7 @@ import SlotUnit from "./SlotUnit";
 const BulkEditor = props => {
     const [startDate, setStartDate] = useState(props.minDate)
     const [endDate, setEndtDate] = useState(props.maxDate)
+
     const StlyeSheet = {
         Container: {
             display: 'flex',
@@ -32,6 +33,7 @@ const BulkEditor = props => {
 
     let checkBoxDays = null
     let slots = null
+
     if (props.show) {
         checkBoxDays = props.days.map(day => {
             return <label key={day.day} style={{padding: "5px 20px"}}>
@@ -53,6 +55,10 @@ const BulkEditor = props => {
                 updateSlotState={props.updateBulkSlotState}
             />
         })
+    }
+
+    const saveChanges = () => {
+        props.handleSave(startDate, endDate)
     }
 
     return (
@@ -98,7 +104,7 @@ const BulkEditor = props => {
                     <Button variant="secondary" onClick={props.handleClose}>
                         Close
                     </Button>
-                    <Button variant="primary">
+                    <Button variant="primary" onClick={saveChanges}>
                         Save Changes
                     </Button>
                 </Modal.Footer>

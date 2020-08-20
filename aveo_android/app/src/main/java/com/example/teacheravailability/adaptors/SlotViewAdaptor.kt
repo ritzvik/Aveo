@@ -51,7 +51,7 @@ class SlotViewAdaptor(var slotsData: List<ValidSlotAugmented>): RecyclerView.Ada
 }
 
 class SlotViewHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
-    private val slotTime = viewItem.findViewById<CheckBox>(R.id.checkBox)
+    private val slotTime = viewItem.findViewById<CheckBox>(R.id.checkBoxSlot)
 
     fun bind(slot: ValidSlotAugmented){
         slotTime.text = slot.start_time

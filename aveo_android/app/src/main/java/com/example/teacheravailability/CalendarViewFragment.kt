@@ -85,6 +85,7 @@ class CalendarViewFragment : Fragment() {
         })
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun setUpMaterialCalendar(view: View, tID: Int) {
         val calendar = view.findViewById<MaterialCalendarView>(R.id.materialCalendar)
         val initialDate = calendar.currentDate
@@ -93,8 +94,10 @@ class CalendarViewFragment : Fragment() {
         calendar.setOnDateChangedListener { calendar, date, selected ->
 
             val todaysDateObj = Calendar.getInstance().time
+            val selectedDateObj =
+                SimpleDateFormat("yyyy-MM-dd").parse("" + date.year + "-" + date.month + "-" + date.day)!!
 
-            if (date.year >= (todaysDateObj.year + 1900) && date.month >= (todaysDateObj.month + 1) && date.day >= todaysDateObj.date) {
+            if ((date.year == (todaysDateObj.year + 1900) && date.month == (todaysDateObj.month + 1) && date.day == todaysDateObj.date) || selectedDateObj.after(todaysDateObj)) {
                 val year = date.year
                 val month = date.month
                 val dayOfMonth = date.day
@@ -118,7 +121,7 @@ class CalendarViewFragment : Fragment() {
             slotsMarkedAvailable(tID, date.month, date.year, calendar)
         }
 
-        (activity as? MainActivity)?.mApp?.triggerMonthViewUpdate!!.observe(
+        GlobalObjects.triggerMonthViewUpdate.observe(
             viewLifecycleOwner,
             Observer { b ->
                 slotsMarkedAvailable(
@@ -136,7 +139,7 @@ class CalendarViewFragment : Fragment() {
 
         val teacherName = args.teacherNameArg
         val tID = args.teacherIDArg
-        (activity as? MainActivity)?.mApp?.setGlobalTeacherID(tID)
+        GlobalObjects.setGlobalTeacherID(tID)
         view.findViewById<TextView>(R.id.teacherName).text = "Welcome " + teacherName + "!"
 
         setUpMaterialCalendar(view, tID)

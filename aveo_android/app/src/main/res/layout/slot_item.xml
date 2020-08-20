@@ -5,12 +5,12 @@
     android:layout_marginStart="30dp">
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/checkBoxSlot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:checked="false"
-        android:paddingStart="15dp"
+        android:paddingStart="5dp"
         android:text="CheckBox"
         android:textColor="@color/colorAccentText"
         android:textSize="20sp" />

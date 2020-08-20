@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.teacheravailability.adaptors.SlotViewAdaptor
@@ -25,6 +27,8 @@ import java.util.ArrayList
  */
 class ModifyAvailabilityFragment : Fragment() {
 
+    private val executeBackOnSaveTrigger = MutableLiveData<Int>(0)
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,6 +46,10 @@ class ModifyAvailabilityFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        executeBackOnSaveTrigger.observe(viewLifecycleOwner, Observer { status ->
+            if (status == 2) { activity?.onBackPressed() }
+        })
 
         val dateText = view.findViewById<TextView>(R.id.dateDisplay)
         dateText.text = args.dateString
@@ -115,13 +123,12 @@ class ModifyAvailabilityFragment : Fragment() {
                 override fun onResponse(call: Call<List<AvailableSlot>>?, response: Response<List<AvailableSlot>>?) {
                     if (response != null) {
                         if (response.isSuccessful) {
-                            println("-------------------Added---------------")
-                            println(response.body())
-                            var createdSlots = response.body()
+                            val createdSlots = response.body()
                             for (slot in createdSlots!!)  {
                                 state.get(slot.validslot_id)?.status = true
                                 state.get(slot.validslot_id)?.available_slot_id = slot.id
                             }
+                            executeBackOnSaveTrigger.value = executeBackOnSaveTrigger.value?.plus(1)
                         }
                     }
                 }
@@ -141,17 +148,16 @@ class ModifyAvailabilityFragment : Fragment() {
                 ) {
                     if (response != null) {
                         if (response.isSuccessful) {
-                            println("---------------Deleted---------------")
                             for (slot in currentState!!)  {
-                                state.get(slot.key)?.status = slot.value.status
+                                state[slot.key]?.status = slot.value.status
                                 Toast.makeText(context, "Changes Saved.", Toast.LENGTH_SHORT).show()
                             }
+                            executeBackOnSaveTrigger.value = executeBackOnSaveTrigger.value?.plus(1)
                         }
                     }
                 }
 
             })
-
         }
 
     }

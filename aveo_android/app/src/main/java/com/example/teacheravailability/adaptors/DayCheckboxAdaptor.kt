@@ -57,11 +57,11 @@ class DaySelectAdaptor(var smallDays: List<SmallDay>): RecyclerView.Adapter<DayS
     }
 }
 class DaySelectHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
-    private val dayBox = viewItem.findViewById<CheckBox>(R.id.checkBox)
+    private val dayBox = viewItem.findViewById<CheckBox>(R.id.checkBoxSlot)
 
     fun bind(smallDay: SmallDay){
-        dayBox.text = smallDay.text
-        dayBox.isChecked = smallDay.selected.value!!
+        dayBox?.text = smallDay.text
+        dayBox?.isChecked = smallDay.selected.value!!
         dayBox?.setOnCheckedChangeListener {compoundButton: CompoundButton?, b: Boolean ->
             smallDay.selected.value = b
         }

@@ -28,7 +28,7 @@ class ValidSlotViewAdaptor(var validSlots: List<ValidSlot>): RecyclerView.Adapte
 }
 
 class ValidSlotViewHolder(viewItem: View): RecyclerView.ViewHolder(viewItem) {
-    private val validSlotBox = viewItem.findViewById<CheckBox>(R.id.checkBox)
+    private val validSlotBox = viewItem.findViewById<CheckBox>(R.id.checkBoxSlot)
 
     fun bind(validSlot: ValidSlot) {
         validSlotBox.text = validSlot.start_time

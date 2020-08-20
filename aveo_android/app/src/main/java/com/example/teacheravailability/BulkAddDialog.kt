@@ -366,6 +366,7 @@ class BulkAddDialog : DialogFragment() {
                 day
             )
 
+            dpd.datePicker.minDate = System.currentTimeMillis() - 1000
             dpd.show()
         }
 
@@ -390,6 +391,7 @@ class BulkAddDialog : DialogFragment() {
                 day
             )
 
+            dpd.datePicker.minDate = System.currentTimeMillis() - 1000
             dpd.show()
         }
 

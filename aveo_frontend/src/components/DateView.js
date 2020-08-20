@@ -24,6 +24,7 @@ class DateView extends React.Component {
                     <SlotUnit
                         key={slot.id}
                         id={slot.id}
+                        state={true}
                         marked={slot.slot.length > 0}
                         start_time={slot.start_time}
                         updateSlotState={this.props.updateSlotState}

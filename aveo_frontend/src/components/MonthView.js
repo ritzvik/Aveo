@@ -23,9 +23,12 @@ class MonthView extends React.Component {
             btnDisabled: true,
 
             bulkEditor: false,
+            minDate: null,
+            maxDate: null,
             days: null,
             validSlots: null,
-            markedCommonSLots: null
+            markedCommonSLots: null,
+            bulkBtnDisabled: false
         }
         this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
@@ -35,14 +38,24 @@ class MonthView extends React.Component {
         this.onSelect = this.onSelect.bind(this)
     }
 
+    getDateString = (d, m, y) => {
+        return y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+    }
+
     componentDidMount() {
-        var d = new Date();
-        var m = d.getMonth() + 1;
-        var y = d.getFullYear()
+        let d = new Date();
+        let dd = d.getDate()
+        let m = d.getMonth() + 1;
+        let y = d.getFullYear()
+        let minDate = this.getDateString(dd, m, y)
+        d = new Date(y, m, 0).getDate()
+        let maxDate = this.getDateString(d, m, y)
         fetchMonthData(this.props.tdata.id, m, y).then((data) => {
             this.setState({
                 month: m,
-                month_view_data: data
+                month_view_data: data,
+                minDate: minDate,
+                maxDate: maxDate
             })
         }).catch(error => console.log(error));
         this.mapDays()
@@ -52,11 +65,26 @@ class MonthView extends React.Component {
     onPanelChange(value, mode) {
         const m = value.month() + 1
         const y = value.year()
+        let minDate = null
+        let maxDate = null
+        let btnDisable = false
+        if (m > new Date().getMonth() + 1) {
+            minDate = this.getDateString(1, m, y)
+            let d = new Date(y, m, 0).getDate()
+            maxDate = this.getDateString(d, m, y)
+        } else if (m === new Date().getMonth() + 1) {
+            minDate = this.getDateString(new Date().getDate(), m, y)
+            let d = new Date(y, m, 0).getDate()
+            maxDate = this.getDateString(d, m, y)
+        } else btnDisable = true
         if (this.state.month !== m)
             fetchMonthData(this.props.tdata.id, m, y).then((data) => {
                 this.setState({
                     month: m,
-                    month_view_data: data
+                    month_view_data: data,
+                    minDate: minDate,
+                    maxDate: maxDate,
+                    bulkBtnDisabled: btnDisable
                 })
             }).catch(error => console.log(error));
     }
@@ -261,6 +289,7 @@ class MonthView extends React.Component {
                 }
             })
             const intersection = this.findCommonSlots(updatedDays)
+            console.log(intersection)
             return {
                 days: updatedDays,
                 markedCommonSLots: intersection
@@ -269,8 +298,17 @@ class MonthView extends React.Component {
 
     }
 
-    updateBulkSlotState = () => {
-        console.log("test")
+    updateBulkSlotState = (id) => {
+        this.setState(prevState => {
+            let commonSlots = prevState.markedCommonSLots
+            commonSlots = commonSlots.map(slot => {
+                return {
+                    start_time: slot.start_time,
+                    marked: slot.start_time === id? !slot.marked : slot.marked
+                }
+            })
+            return {markedCommonSLots : commonSlots}
+        })
     }
 
     fetchAndParseValidSlots = () => {
@@ -299,7 +337,7 @@ class MonthView extends React.Component {
     findCommonSlots = (markedDays) => {
         const validSlots = this.state.validSlots
         markedDays = markedDays.filter(day => day.marked)
-        if (markedDays.length >0 ) {
+        if (markedDays.length > 0) {
             let intersection = new Set(Object.keys(validSlots[markedDays[0].day]))
             markedDays.forEach((day) => {
                 let next = new Set(Object.keys(validSlots[day.day]))
@@ -312,8 +350,7 @@ class MonthView extends React.Component {
                 }
             })
             return intersection
-        }
-        else return []
+        } else return []
     }
 
     render() {
@@ -341,6 +378,8 @@ class MonthView extends React.Component {
                 {this.state.bulkEditor &&
                 <BulkEditor
                     show={this.state.bulkEditor}
+                    minDate={this.state.minDate}
+                    maxDate={this.state.maxDate}
                     days={this.state.days}
                     updateDays={this.updateDays}
                     updateBulkSlotState={this.updateBulkSlotState}
@@ -348,7 +387,11 @@ class MonthView extends React.Component {
                     handleClose={this.toggleBulkEditor}
                 />
                 }
-                <Button variant="primary" onClick={this.toggleBulkEditor}>Bulk Availability</Button>
+                <Button
+                    variant="primary"
+                    onClick={this.toggleBulkEditor}
+                    disabled={this.state.bulkBtnDisabled}
+                >Bulk Availability</Button>
             </div>
         )
     }

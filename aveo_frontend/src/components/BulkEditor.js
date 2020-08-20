@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import {Button, Modal, Input, Form, Col} from "react-bootstrap"
 import SlotUnit from "./SlotUnit";
 
 const BulkEditor = props => {
+    const [startDate, setStartDate] = useState(props.minDate)
+    const [endDate, setEndtDate] = useState(props.maxDate)
     const StlyeSheet = {
         Container: {
             display: 'flex',
@@ -24,6 +26,10 @@ const BulkEditor = props => {
             display: "flex"
         }
     }
+
+    const month = [ "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December" ]
+
     let checkBoxDays = null
     let slots = null
     if (props.show) {
@@ -37,9 +43,11 @@ const BulkEditor = props => {
             </label>
         })
         slots = props.commonSlots.map(slot => {
+            // console.log(slot.marked)
             return <SlotUnit
                 key={slot.start_time}
                 id={slot.start_time}
+                state={false}
                 marked={slot.marked}
                 start_time={slot.start_time}
                 updateSlotState={props.updateBulkSlotState}
@@ -52,17 +60,32 @@ const BulkEditor = props => {
             <Modal show={props.show} onHide={props.handleClose} centered size="xl"
                    dialogClassName="col-md-8">
                 <Modal.Header closeButton>
-                    <Modal.Title>Select Availability</Modal.Title>
+                    <Modal.Title>Select Availability |
+                         {" "+month[new Date(props.minDate).getMonth()]} {new Date(props.minDate).getFullYear()}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form style={StlyeSheet.Form}>
                         <Form.Row style={StlyeSheet.Row}>
                             <Col sm="2" style={StlyeSheet.Col}><Form.Label>Start Date: </Form.Label></Col>
-                            <Col sm="3"><Form.Control type="date"/></Col>
+                            <Col sm="3">
+                                <Form.Control
+                                    value={startDate}
+                                    type="date"
+                                    min={props.minDate}
+                                    max={endDate}
+                                    onChange={e => {
+                                        setStartDate(e.target.value)
+                                    }}
+                                /></Col>
                         </Form.Row>
                         <Form.Row style={StlyeSheet.Row}>
                             <Col sm="2" style={StlyeSheet.Col}><Form.Label>End Date: </Form.Label></Col>
-                            <Col sm="3"><Form.Control type="date"/></Col>
+                            <Col sm="3">
+                                <Form.Control
+                                    type="date"
+                                    min={startDate}
+                                    max={props.maxDate}
+                                    onChange={e => setEndtDate(e.target.value)}/></Col>
                         </Form.Row>
                         <Form.Row><Col>{checkBoxDays}</Col></Form.Row>
                         <Form.Row>

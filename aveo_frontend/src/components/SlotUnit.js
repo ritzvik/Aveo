@@ -58,24 +58,36 @@ class SlotUnit extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            marked: this.props.marked
+            marked: false,
+            useState: props.state
         }
     }
 
     updateSlot = (event) => {
-        this.setState(prevState => {
-            return {marked: !prevState.marked}
-        })
-        this.props.updateSlotState(event.target.id, !this.state.marked)
+        if (this.state.useState) {
+            this.setState(prevState => {
+                return {marked: !prevState.marked}
+            })
+            this.props.updateSlotState(event.target.id, !this.state.marked)
+        }
+        else{
+            this.props.updateSlotState(event.target.id, event.target.value)
+        }
     }
 
     render() {
         return (
             <div>
-                <Container fluid='md' className={css(styles.container)} style={this.state.marked? {background: "#007bff",color: "#ffffff"} :{background: "#ffffff"} } >
+                <Container
+                    fluid='md'
+                    className={css(styles.container)}
+                    style={ (this.state.useState?this.state.marked : this.props.marked) ? {
+                    background: "#007bff",
+                    color: "#ffffff"
+                    } : {background: "#ffffff"}}>
                     <label className={css(styles.label)}>
                         <input style={{opacity: 0}} id={this.props.id} type="checkbox" readOnly
-                               checked={this.state.marked}
+                               checked={this.state.useState?this.state.marked : this.props.marked}
                                onClick={this.updateSlot}/>
                         {this.props.start_time}
                     </label>

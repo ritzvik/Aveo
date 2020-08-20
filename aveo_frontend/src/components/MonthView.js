@@ -1,5 +1,5 @@
 import React from 'react';
-import {Calendar, Badge} from 'antd';
+import {Calendar, Badge, Select, Col, Typography, Radio, Row} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
@@ -409,18 +409,94 @@ class MonthView extends React.Component {
             }).catch(error => console.log(error));
         }
     }
+    headerRender = ({value, type, onChange, onTypeChange}) => {
+        const start = 0;
+        const end = 12;
+        const monthOptions = [];
+
+        const current = value.clone();
+        const localeData = value.localeData();
+        const months = [];
+        for (let i = 0; i < 12; i++) {
+            current.month(i);
+            months.push(localeData.monthsShort(current));
+        }
+
+        for (let index = start; index < end; index++) {
+            monthOptions.push(
+                <Select.Option className="month-item" key={`${index}`}>
+                    {months[index]}
+                </Select.Option>,
+            );
+        }
+        const month = value.month();
+
+        const year = value.year();
+        const options = [];
+        for (let i = year - 10; i < year + 10; i += 1) {
+            options.push(
+                <Select.Option key={i} value={i} className="year-item">
+                    {i}
+                </Select.Option>,
+            );
+        }
+        return (
+            <div style={{padding: 8}}>
+                <Typography.Title level={2} style={{color:"#555555"}}>
+                    Manage Availability
+                </Typography.Title>
+                <Row gutter={8}>
+                    <Col>
+                        <Radio.Group size="small" onChange={e => onTypeChange(e.target.value)} value={type}>
+                            <Radio.Button value="month">Month</Radio.Button>
+                        </Radio.Group>
+                    </Col>
+                    <Col>
+                        <Select
+                            size="small"
+                            dropdownMatchSelectWidth={false}
+                            className="my-year-select"
+                            onChange={newYear => {
+                                const now = value.clone().year(newYear);
+                                onChange(now);
+                            }}
+                            value={String(year)}
+                        >
+                            {options}
+                        </Select>
+                    </Col>
+                    <Col>
+                        <Select
+                            size="small"
+                            dropdownMatchSelectWidth={false}
+                            value={String(month)}
+                            onChange={selectedMonth => {
+                                const newValue = value.clone();
+                                newValue.month(parseInt(selectedMonth, 10));
+                                onChange(newValue);
+                            }}
+                        >
+                            {monthOptions}
+                        </Select>
+                    </Col>
+                </Row>
+            </div>
+        );
+    }
 
     render() {
         return (
             <div>
                 <Container fluid='md'>
                     <Calendar
+                        headerRender={this.headerRender}
                         dateCellRender={this.dateCellRender}
                         onPanelChange={this.onPanelChange}
                         onSelect={this.onSelect}
                         disabledDate={this.disabledDate}
                     />
                     <Button
+                        style={{margin:5}}
                         variant="primary"
                         onClick={this.toggleBulkEditor}
                         disabled={this.state.bulkBtnDisabled}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Form, Col, Button } from 'react-bootstrap';
+import {Container, Form, Col, Button} from 'react-bootstrap';
 
 class TeacherForm extends React.Component {
     constructor(props) {
@@ -11,7 +11,7 @@ class TeacherForm extends React.Component {
     }
 
     onChange(event) {
-        this.setState({ teacher_id: event.target.value })
+        this.setState({teacher_id: event.target.value})
     }
 
     render() {
@@ -35,12 +35,13 @@ class TeacherForm extends React.Component {
                     <Form.Row>
                         <Col md='12'>
                             <Form.Control placeholder="Teacher_ID" value={this.state.teacher_id}
-                                onChange={this.onChange} />
+                                          onChange={this.onChange}/>
                         </Col>
                     </Form.Row>
                     <Form.Row>
                         <Col style={StlyeSheet.BtnCol}>
-                            <Button variant='primary' onClick={() => this.props.handleSubmit(this.state.teacher_id)}>Go</Button>
+                            <Button variant='primary'
+                                    onClick={() => this.props.handleSubmit(this.state.teacher_id)}>Go</Button>
                         </Col>
                     </Form.Row>
                 </Form>

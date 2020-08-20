@@ -1,4 +1,4 @@
-import { API, format } from "./URLs"
+import {API, format} from "./URLs"
 
 //Apis
 //teacher data
@@ -6,18 +6,17 @@ import { API, format } from "./URLs"
 const response = response => {
     if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response)
-    } else if (response.status === 404 ) {
-        return Promise.reject(new Error("URL not found :"+response.statusText))
+    } else if (response.status === 404) {
+        return Promise.reject(new Error("URL not found :" + response.statusText))
     } else if (response.status >= 500 && response.status <= 504) {
-        return Promise.reject(new Error("Server Error :"+response.statusText))
-    }
-    else {
+        return Promise.reject(new Error("Server Error :" + response.statusText))
+    } else {
         return Promise.reject(new Error(response.status))
     }
 }
 
 const fetchAPI = url => {
-    return fetch(url).then(response).then(response=> response.json())
+    return fetch(url).then(response).then(response => response.json())
 }
 
 export const getTeacher = id => {
@@ -59,3 +58,8 @@ export const delSlots = (id, delSlotsList) => {
     return fetch(URL, requestOptions).then(response)
 }
 
+// Get valid slots
+export const fetchValidSlots = () => {
+    const URL = API.BASE_URL + API.VALID_SLOTS_GET_API
+    return fetchAPI(URL)
+}

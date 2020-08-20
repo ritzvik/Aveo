@@ -2,7 +2,7 @@ import React from "react";
 import Header from "./components/Header";
 import TeacherForm from "./components/TeacherForm";
 import MonthView from "./components/MonthView";
-import { API } from "./URLs"
+import {API} from "./URLs"
 import {getTeacher} from "./APIs"
 
 
@@ -24,6 +24,7 @@ class App extends React.Component {
             data: ""
         })
     }
+
     handleBtnClick = (id) => {
         getTeacher(id).then((data) => {
             localStorage.setItem(API.USER_KEY, JSON.stringify(data));
@@ -42,8 +43,8 @@ class App extends React.Component {
                     logout={this.handleLogout}
                 />
                 {!this.state.isLoggedIn
-                    ? <TeacherForm handleSubmit={this.handleBtnClick} />
-                    : <MonthView tdata={this.state.data} />
+                    ? <TeacherForm handleSubmit={this.handleBtnClick}/>
+                    : <MonthView tdata={this.state.data}/>
                 }
             </div>
         )

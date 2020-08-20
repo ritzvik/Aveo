@@ -1,5 +1,5 @@
 import {css, StyleSheet} from "aphrodite";
-import React, {useState} from "react";
+import React from "react";
 import {Container} from "react-bootstrap";
 
 const styles = StyleSheet.create({

@@ -54,6 +54,7 @@ class DateIterator(start: Date, endInclusive: Date, stepDays: Int) : Iterator<Da
 
 class BulkAddDialog : DialogFragment() {
 
+    private var oneDayInMilliseconds: Long = 24 * 60 * 60 * 1000
     private var validSlots: List<ValidSlot> = listOf()
     private val smallDays = makeSmallDays()
     private val triggerValidSlotView = MutableLiveData<Boolean>(false)
@@ -367,6 +368,7 @@ class BulkAddDialog : DialogFragment() {
             )
 
             dpd.datePicker.minDate = System.currentTimeMillis() - 1000
+            dpd.datePicker.maxDate = System.currentTimeMillis() + (oneDayInMilliseconds * 30)
             dpd.show()
         }
 
@@ -392,6 +394,7 @@ class BulkAddDialog : DialogFragment() {
             )
 
             dpd.datePicker.minDate = System.currentTimeMillis() - 1000
+            dpd.datePicker.maxDate = System.currentTimeMillis() + (oneDayInMilliseconds * 30)
             dpd.show()
         }
 

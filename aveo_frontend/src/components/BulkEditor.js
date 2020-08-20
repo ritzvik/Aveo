@@ -6,7 +6,7 @@ const BulkEditor = props => {
     const [startDate, setStartDate] = useState(props.minDate)
     const [endDate, setEndtDate] = useState(props.maxDate)
 
-    const StlyeSheet = {
+    const StyleSheet = {
         Container: {
             display: 'flex',
             justifyContent: 'center'
@@ -45,11 +45,9 @@ const BulkEditor = props => {
             </label>
         })
         slots = props.commonSlots.map(slot => {
-            // console.log(slot.marked)
             return <SlotUnit
                 key={slot.start_time}
                 id={slot.start_time}
-                state={false}
                 marked={slot.marked}
                 start_time={slot.start_time}
                 updateSlotState={props.updateBulkSlotState}
@@ -70,9 +68,9 @@ const BulkEditor = props => {
                         {" " + month[new Date(props.minDate).getMonth()]} {new Date(props.minDate).getFullYear()}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form style={StlyeSheet.Form}>
-                        <Form.Row style={StlyeSheet.Row}>
-                            <Col sm="2" style={StlyeSheet.Col}><Form.Label>Start Date: </Form.Label></Col>
+                    <Form style={StyleSheet.Form}>
+                        <Form.Row style={StyleSheet.Row}>
+                            <Col sm="2" style={StyleSheet.Col}><Form.Label>Start Date: </Form.Label></Col>
                             <Col sm="3">
                                 <Form.Control
                                     value={startDate}
@@ -84,8 +82,8 @@ const BulkEditor = props => {
                                     }}
                                 /></Col>
                         </Form.Row>
-                        <Form.Row style={StlyeSheet.Row}>
-                            <Col sm="2" style={StlyeSheet.Col}><Form.Label>End Date: </Form.Label></Col>
+                        <Form.Row style={StyleSheet.Row}>
+                            <Col sm="2" style={StyleSheet.Col}><Form.Label>End Date: </Form.Label></Col>
                             <Col sm="3">
                                 <Form.Control
                                     type="date"

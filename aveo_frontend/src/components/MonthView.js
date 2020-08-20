@@ -250,6 +250,7 @@ class MonthView extends React.Component {
                 return slot.id === id
             })[0].status
         })
+
         const addSlots = changedSlots.filter(slot => slot.status).map(slot => {
             return {
                 date: this.state.date,
@@ -298,7 +299,6 @@ class MonthView extends React.Component {
                 markedCommonSLots: intersection
             }
         })
-
     }
 
     updateBulkSlotState = (id) => {

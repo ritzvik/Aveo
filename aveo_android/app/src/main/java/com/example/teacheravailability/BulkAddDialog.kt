@@ -221,7 +221,7 @@ class BulkAddDialog : DialogFragment() {
     private fun dateObjToDateString(date: Date): String {
         var dateString = (date.year + 1900).toString() + "-"
         dateString += (date.month + 1).toString().padStart(2, '0') + "-"
-        dateString += date.date.toString()
+        dateString += date.date.toString().padStart(2, '0')
         return dateString
     }
 

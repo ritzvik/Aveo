@@ -92,21 +92,25 @@ class CalendarViewFragment : Fragment() {
 
         calendar.setOnDateChangedListener { calendar, date, selected ->
 
-            val year = date.year
-            val month = date.month
-            val dayOfMonth = date.day
-            val displayString =
-                year.toString() + "-" + (month).toString() + "-" + dayOfMonth.toString()
+            val todaysDateObj = Calendar.getInstance().time
 
-            val action =
-                CalendarViewFragmentDirections.actionCalendarViewFragmentToModifyAvailabilityFragment(
-                    displayString,
-                    tID,
-                    year,
-                    month,
-                    dayOfMonth
-                )
-            findNavController().navigate(action)
+            if (date.year >= (todaysDateObj.year + 1900) && date.month >= (todaysDateObj.month + 1) && date.day >= todaysDateObj.date) {
+                val year = date.year
+                val month = date.month
+                val dayOfMonth = date.day
+                val displayString =
+                    year.toString() + "-" + (month).toString() + "-" + dayOfMonth.toString()
+
+                val action =
+                    CalendarViewFragmentDirections.actionCalendarViewFragmentToModifyAvailabilityFragment(
+                        displayString,
+                        tID,
+                        year,
+                        month,
+                        dayOfMonth
+                    )
+                findNavController().navigate(action)
+            }
         }
 
         calendar.setOnMonthChangedListener { calender, date ->

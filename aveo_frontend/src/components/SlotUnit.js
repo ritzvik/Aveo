@@ -1,5 +1,5 @@
 import {css, StyleSheet} from "aphrodite";
-import React from "react";
+import React, {useState} from "react";
 import {Container} from "react-bootstrap";
 
 const styles = StyleSheet.create({
@@ -54,47 +54,33 @@ const styles = StyleSheet.create({
     },
 })
 
-class SlotUnit extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            marked: false,
-            useState: props.state
-        }
+const SlotUnit = (props) => {
+    const [marked, setMarked] = useState(props.marked)
+
+    const updateSlot = (event) => {
+        setMarked(prevState => !prevState)
+        props.updateSlotState(event.target.id, !marked)
     }
 
-    updateSlot = (event) => {
-        if (this.state.useState) {
-            this.setState(prevState => {
-                return {marked: !prevState.marked}
-            })
-            this.props.updateSlotState(event.target.id, !this.state.marked)
-        }
-        else{
-            this.props.updateSlotState(event.target.id, event.target.value)
-        }
-    }
-
-    render() {
-        return (
-            <div>
-                <Container
-                    fluid='md'
-                    className={css(styles.container)}
-                    style={ (this.state.useState?this.state.marked : this.props.marked) ? {
+    return (
+        <div>
+            <Container
+                fluid='md'
+                className={css(styles.container)}
+                style={marked ? {
                     background: "#007bff",
                     color: "#ffffff"
-                    } : {background: "#ffffff"}}>
-                    <label className={css(styles.label)}>
-                        <input style={{opacity: 0}} id={this.props.id} type="checkbox" readOnly
-                               checked={this.state.useState?this.state.marked : this.props.marked}
-                               onClick={this.updateSlot}/>
-                        {this.props.start_time}
-                    </label>
-                </Container>
-            </div>
-        )
-    }
+                } : {background: "#ffffff"}}>
+                <label className={css(styles.label)}>
+                    <input style={{opacity: 0}} id={props.id} type="checkbox" readOnly
+                           checked={marked}
+                           onClick={updateSlot}/>
+                    {props.start_time}
+                </label>
+            </Container>
+        </div>
+    )
+
 }
 
 export default SlotUnit

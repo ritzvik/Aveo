@@ -7,13 +7,6 @@ import SlotUnit from "./SlotUnit"
 
 
 class DateView extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            currentSlotStates: null
-        }
-    }
-
     dayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     render() {

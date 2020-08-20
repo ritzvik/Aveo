@@ -304,10 +304,10 @@ class MonthView extends React.Component {
             commonSlots = commonSlots.map(slot => {
                 return {
                     start_time: slot.start_time,
-                    marked: slot.start_time === id? !slot.marked : slot.marked
+                    marked: slot.start_time === id ? !slot.marked : slot.marked
                 }
             })
-            return {markedCommonSLots : commonSlots}
+            return {markedCommonSLots: commonSlots}
         })
     }
 
@@ -362,17 +362,26 @@ class MonthView extends React.Component {
         const markedDays = this.state.days.filter(day => day.marked)
         const validSlots = this.state.validSlots
 
+        let monthDataMap = new Map()
+        this.state.month_view_data.filter(slot => {
+            const mapID = slot.date + "/" + slot.validslot_id
+            monthDataMap.set(mapID, true)
+        })
+        console.log(monthDataMap)
         let addSlots = []
-        while (date <= endDate){
+        while (date <= endDate) {
             const d = date.getDate()
             const day = days[date.getDay()]
-            const m = date.getMonth()+1
+            const m = date.getMonth() + 1
             const y = date.getFullYear()
-            const dateString = this.getDateString(d,m,y)
+            const dateString = this.getDateString(d, m, y)
             const validDay = markedDays.filter(dayItem => dayItem.day === day)
 
             if (validDay.length > 0) {
-                addSlots = [...addSlots, ...markedSlots.filter(slot => slot.marked).map(slot => {
+                addSlots = [...addSlots, ...markedSlots.filter(slot => {
+                    const validSlotsID = validSlots[day][slot.start_time]
+                    return slot.marked && !monthDataMap.has(dateString+"/"+validSlotsID)
+                }).map(slot => {
                     const validSlotsID = validSlots[day][slot.start_time]
                     return {
                         date: dateString,
@@ -382,7 +391,7 @@ class MonthView extends React.Component {
                     }
                 })]
             }
-            date = new Date(date.setDate(date.getDate()+1))
+            date = new Date(date.setDate(date.getDate() + 1))
         }
         console.log(addSlots)
     }

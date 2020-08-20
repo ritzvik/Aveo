@@ -5,7 +5,6 @@ import 'antd/dist/antd.css';
 import Editor from "./Editor"
 import BulkEditor from "./BulkEditor"
 import {Container, Button} from "react-bootstrap";
-import {API, format} from "../URLs";
 import {fetchMonthData, fetchSoltData, addSlots, delSlots, fetchValidSlots} from "../APIs"
 
 class MonthView extends React.Component {
@@ -31,12 +30,7 @@ class MonthView extends React.Component {
             markedCommonSLots: null,
             bulkBtnDisabled: false
         }
-        this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
-        this.dateCellRender = this.dateCellRender.bind(this)
-        this.getData = this.getData.bind(this)
-        this.onPanelChange = this.onPanelChange.bind(this)
-        this.onSelect = this.onSelect.bind(this)
     }
 
     getDateString = (d, m, y) => {
@@ -64,7 +58,7 @@ class MonthView extends React.Component {
         this.fetchAndParseValidSlots()
     }
 
-    onPanelChange(value, mode) {
+    onPanelChange = (value, mode) => {
         const m = value.month() + 1
         const y = value.year()
         let minDate = null
@@ -92,7 +86,7 @@ class MonthView extends React.Component {
             }).catch(error => console.log(error));
     }
 
-    getData(date, month) {
+    getData = (date, month) => {
         let data = this.state.month_view_data;
         let item;
         let counter = 0
@@ -108,7 +102,7 @@ class MonthView extends React.Component {
         } : {valid_month: false}
     }
 
-    dateCellRender(value) {
+    dateCellRender = (value) => {
         var month = value.month()
         var month_data = this.getData(value.format('YYYY-MM-DD'), month)
         return (
@@ -120,7 +114,7 @@ class MonthView extends React.Component {
         );
     }
 
-    toggleEditor() {
+    toggleEditor = () => {
         const editorClosing = this.state.editor
         this.setState(prevState => {
                 return {
@@ -159,35 +153,19 @@ class MonthView extends React.Component {
             .catch(error => console.log(error));
     }
 
-    onSelect(value) {
+    onSelect = (value) => {
         let date = value.format('YYYY-MM-DD')
         if (value.month() + 1 === this.state.month && value.year() === this.state.year) {
             this.fetchSlotsForDate(date).then(() => this.toggleEditor())
         }
     }
 
-    disabledDate(value) {
+    disabledDate = (value) => {
         var d = new Date()
         return value._d < d
     }
 
-    fetchSoltData(tid, date) {
-        var URL = API.BASE_URL + format(API.SLOT_GET_API_URL, [tid, date])
-
-        return fetch(URL).then(response => response.json()).then(
-            data => {
-                this.setState({
-                    slotdata: data,
-                    date: date,
-                    slotStates: this.parseAvailableSlot(data),
-                    currentSlotStates: this.parseAvailableSlot(data),
-                    btnDisabled: true
-                });
-            }
-        )
-    }
-
-    parseAvailableSlot(slotData) {
+    parseAvailableSlot = (slotData) => {
         return slotData.map(slot => {
             return {
                 id: slot.id,
@@ -213,7 +191,7 @@ class MonthView extends React.Component {
         })
     }
 
-    APICall = (addSlotsList, delSlotsList) => {
+    updateSlotAvailablity = (addSlotsList, delSlotsList) => {
         if (addSlotsList.length > 0 && delSlotsList.length > 0) {
             addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
@@ -261,7 +239,7 @@ class MonthView extends React.Component {
         })
         const delSlots = changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id)
 
-        this.APICall(addSlots, delSlots)
+        this.updateSlotAvailablity(addSlots, delSlots)
     }
 
     // --------------Bulk Editor-------------

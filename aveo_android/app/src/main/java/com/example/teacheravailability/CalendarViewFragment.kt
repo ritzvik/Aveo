@@ -63,15 +63,13 @@ class CalendarViewFragment : Fragment() {
                                 val dateObj = SimpleDateFormat("yyyy-MM-dd").parse(slot.date)
                                 dateSet.add(dateObj)
                             }
+                            val calendarDatesSet = mutableSetOf<CalendarDay>()
+                            dateSet.forEach { d ->
+                                calendarDatesSet.add(CalendarDay.from(year, month, d.date))
+                            }
+
                             uiThread {
-                                dateSet.forEach { d ->
-                                    calendar.addDecorators(
-                                        DayDecorator(
-                                            activity,
-                                            CalendarDay.from(year, month, d.date)
-                                        )
-                                    )
-                                }
+                                calendar.addDecorators(EventDecorator(activity, calendarDatesSet))
                             }
                         }
                     } else { // application level failure
@@ -100,13 +98,14 @@ class CalendarViewFragment : Fragment() {
             val displayString =
                 year.toString() + "-" + (month).toString() + "-" + dayOfMonth.toString()
 
-            val action = CalendarViewFragmentDirections.actionCalendarViewFragmentToModifyAvailabilityFragment(
-                displayString,
-                tID,
-                year,
-                month,
-                dayOfMonth
-            )
+            val action =
+                CalendarViewFragmentDirections.actionCalendarViewFragmentToModifyAvailabilityFragment(
+                    displayString,
+                    tID,
+                    year,
+                    month,
+                    dayOfMonth
+                )
             findNavController().navigate(action)
         }
 

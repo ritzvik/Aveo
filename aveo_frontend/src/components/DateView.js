@@ -13,7 +13,7 @@ class DateView extends React.Component {
                     <SlotUnit
                         key={slot.id}
                         id={slot.id}
-                        marked={slot.slot.length > 0}
+                        marked={slot.status}
                         start_time={slot.start_time}
                         updateSlotState={this.props.updateSlotState}
                     />

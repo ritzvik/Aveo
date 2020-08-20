@@ -170,18 +170,20 @@ class MonthView extends React.Component {
             return {
                 id: slot.id,
                 status: slot.slot.length > 0,
-                available_slot_id: slot.slot.length > 0 ? slot.slot[0].id : null
+                available_slot_id: slot.slot.length > 0 ? slot.slot[0].id : null,
+                start_time: slot.start_time
             }
         })
     }
 
-    updateSlotState = (id, status) => {
+    updateSlotState = (id) => {
         this.setState(prevState => {
             const newSlotStatus = prevState.currentSlotStates.map(slot => {
                 return {
                     id: slot.id,
-                    status: slot.id.toString() === id ? status : slot.status,
-                    available_slot_id: slot.available_slot_id
+                    status: slot.id.toString() === id ? !slot.status : slot.status,
+                    available_slot_id: slot.available_slot_id,
+                    start_time: slot.start_time
                 }
             })
             return {
@@ -489,7 +491,7 @@ class MonthView extends React.Component {
                     show={this.state.editor}
                     date={this.state.date}
                     tdata={this.props.tdata}
-                    slotdata={this.state.slotdata}
+                    slotdata={this.state.currentSlotStates}
                     slotDataFetched={this.state.slotdataFetched}
                     updateSlotState={this.updateSlotState}
                     handleSave={this.handleSave}

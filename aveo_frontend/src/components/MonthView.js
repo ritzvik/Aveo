@@ -14,6 +14,7 @@ class MonthView extends React.Component {
         this.state = {
             month: "",
             month_view_data: "",
+            year: "",
             editor: false,
             date: "",
             slotdata: null,
@@ -53,6 +54,7 @@ class MonthView extends React.Component {
         fetchMonthData(this.props.tdata.id, m, y).then((data) => {
             this.setState({
                 month: m,
+                year: y,
                 month_view_data: data,
                 minDate: minDate,
                 maxDate: maxDate
@@ -81,6 +83,7 @@ class MonthView extends React.Component {
             fetchMonthData(this.props.tdata.id, m, y).then((data) => {
                 this.setState({
                     month: m,
+                    year: y,
                     month_view_data: data,
                     minDate: minDate,
                     maxDate: maxDate,
@@ -134,6 +137,7 @@ class MonthView extends React.Component {
                 this.setState({
                     month: m,
                     month_view_data: data,
+                    year: y,
                 })
             }).catch(error => console.log(error));
         }
@@ -259,7 +263,7 @@ class MonthView extends React.Component {
         this.APICall(addSlots, delSlots)
     }
 
-    // Bulk Editor
+    // --------------Bulk Editor-------------
     mapDays = () => {
         let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
         let mapping = []
@@ -289,7 +293,6 @@ class MonthView extends React.Component {
                 }
             })
             const intersection = this.findCommonSlots(updatedDays)
-            console.log(intersection)
             return {
                 days: updatedDays,
                 markedCommonSLots: intersection
@@ -367,8 +370,7 @@ class MonthView extends React.Component {
             const mapID = slot.date + "/" + slot.validslot_id
             monthDataMap.set(mapID, true)
         })
-        console.log(monthDataMap)
-        let addSlots = []
+        let addSlotsList = []
         while (date <= endDate) {
             const d = date.getDate()
             const day = days[date.getDay()]
@@ -378,9 +380,9 @@ class MonthView extends React.Component {
             const validDay = markedDays.filter(dayItem => dayItem.day === day)
 
             if (validDay.length > 0) {
-                addSlots = [...addSlots, ...markedSlots.filter(slot => {
+                addSlotsList = [...addSlotsList, ...markedSlots.filter(slot => {
                     const validSlotsID = validSlots[day][slot.start_time]
-                    return slot.marked && !monthDataMap.has(dateString+"/"+validSlotsID)
+                    return slot.marked && !monthDataMap.has(dateString + "/" + validSlotsID)
                 }).map(slot => {
                     const validSlotsID = validSlots[day][slot.start_time]
                     return {
@@ -393,7 +395,19 @@ class MonthView extends React.Component {
             }
             date = new Date(date.setDate(date.getDate() + 1))
         }
-        console.log(addSlots)
+        if (addSlotsList.length > 0) {
+            addSlots(JSON.stringify(addSlotsList)).then(response => {
+                if (response.status === 201) {
+                    console.log("Slots added")
+                }
+            }).then(() => {
+                fetchMonthData(this.props.tdata.id, this.state.month, this.state.year).then((data) => {
+                    this.setState({
+                        month_view_data: data,
+                    })
+                })
+            }).catch(error => console.log(error));
+        }
     }
 
     render() {
@@ -410,7 +424,7 @@ class MonthView extends React.Component {
                         variant="primary"
                         onClick={this.toggleBulkEditor}
                         disabled={this.state.bulkBtnDisabled}
-                    >Bulk Availability</Button>
+                    >Add Availabilities for Month</Button>
                 </Container>
                 <Editor
                     show={this.state.editor}

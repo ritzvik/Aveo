@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {Button, Modal, Input, Form, Col} from "react-bootstrap"
 import SlotUnit from "./SlotUnit";
 
@@ -28,8 +28,8 @@ const BulkEditor = props => {
         }
     }
 
-    const month = [ "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December" ]
+    const month = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"]
 
     let checkBoxDays = null
     let slots = null
@@ -67,7 +67,7 @@ const BulkEditor = props => {
                    dialogClassName="col-md-8">
                 <Modal.Header closeButton>
                     <Modal.Title>Select Availability |
-                         {" "+month[new Date(props.minDate).getMonth()]} {new Date(props.minDate).getFullYear()}</Modal.Title>
+                        {" " + month[new Date(props.minDate).getMonth()]} {new Date(props.minDate).getFullYear()}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form style={StlyeSheet.Form}>

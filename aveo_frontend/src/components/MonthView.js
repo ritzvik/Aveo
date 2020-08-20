@@ -79,7 +79,7 @@ class MonthView extends React.Component {
             let d = new Date(y, m, 0).getDate()
             maxDate = this.getDateString(d, m, y)
         } else btnDisable = true
-        if (this.state.month !== m)
+        if (this.state.month !== m || this.state.year !== y)
             fetchMonthData(this.props.tdata.id, m, y).then((data) => {
                 this.setState({
                     month: m,
@@ -161,7 +161,7 @@ class MonthView extends React.Component {
 
     onSelect(value) {
         let date = value.format('YYYY-MM-DD')
-        if (value.month() + 1 === this.state.month) {
+        if (value.month() + 1 === this.state.month && value.year() === this.state.year) {
             this.fetchSlotsForDate(date).then(() => this.toggleEditor())
         }
     }

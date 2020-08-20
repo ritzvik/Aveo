@@ -12,19 +12,20 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 
 
-class DayDecorator(context: Activity?, day: CalendarDay) : DayViewDecorator {
+class EventDecorator(context: Activity?, dates: Collection<CalendarDay>) : DayViewDecorator {
     private val drawable: Drawable?
-    var myDay = day
-    override fun shouldDecorate(day: CalendarDay?): Boolean {
-        return day == myDay
-    }
-
-    override fun decorate(view: DayViewFacade) {
-        // view.setSelectionDrawable(drawable!!)
-        view.addSpan(DotSpan("7.0".toFloat(), Color.RED))
-    }
+    private val datesToBeDecorated = dates
 
     init { // You can set background for Decorator via drawable here
         drawable = ContextCompat.getDrawable(context!!, R.drawable.checkbox_off_background)
     }
+
+    override fun shouldDecorate(day: CalendarDay?): Boolean {
+        return datesToBeDecorated.contains(day)
+    }
+
+    override fun decorate(view: DayViewFacade) {
+        view.addSpan(DotSpan("8.0".toFloat(), Color.RED))
+    }
+
 }

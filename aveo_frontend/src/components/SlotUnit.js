@@ -55,32 +55,24 @@ const styles = StyleSheet.create({
 })
 
 const SlotUnit = (props) => {
-    const [marked, setMarked] = useState(props.marked)
-
-    const updateSlot = (event) => {
-        setMarked(prevState => !prevState)
-        props.updateSlotState(event.target.id, !marked)
-    }
-
     return (
         <div>
             <Container
                 fluid='md'
                 className={css(styles.container)}
-                style={marked ? {
+                style={props.marked ? {
                     background: "#007bff",
                     color: "#ffffff"
                 } : {background: "#ffffff"}}>
                 <label className={css(styles.label)}>
                     <input style={{opacity: 0}} id={props.id} type="checkbox" readOnly
-                           checked={marked}
-                           onClick={updateSlot}/>
+                           value={props.marked}
+                           onClick={event => props.updateSlotState(event.target.id)}/>
                     {props.start_time}
                 </label>
             </Container>
         </div>
     )
-
 }
 
 export default SlotUnit

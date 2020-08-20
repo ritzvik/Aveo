@@ -1,11 +1,10 @@
 import React from 'react';
-import {Calendar, Badge} from 'antd';
+import {Calendar, Badge, Select, Col, Typography, Radio, Row} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
 import BulkEditor from "./BulkEditor"
 import {Container, Button} from "react-bootstrap";
-import {API, format} from "../URLs";
 import {fetchMonthData, fetchSoltData, addSlots, delSlots, fetchValidSlots} from "../APIs"
 
 class MonthView extends React.Component {
@@ -31,12 +30,7 @@ class MonthView extends React.Component {
             markedCommonSLots: null,
             bulkBtnDisabled: false
         }
-        this.toggleEditor = this.toggleEditor.bind(this)
         this.componentDidMount = this.componentDidMount.bind(this)
-        this.dateCellRender = this.dateCellRender.bind(this)
-        this.getData = this.getData.bind(this)
-        this.onPanelChange = this.onPanelChange.bind(this)
-        this.onSelect = this.onSelect.bind(this)
     }
 
     getDateString = (d, m, y) => {
@@ -64,7 +58,7 @@ class MonthView extends React.Component {
         this.fetchAndParseValidSlots()
     }
 
-    onPanelChange(value, mode) {
+    onPanelChange = (value, mode) => {
         const m = value.month() + 1
         const y = value.year()
         let minDate = null
@@ -79,7 +73,7 @@ class MonthView extends React.Component {
             let d = new Date(y, m, 0).getDate()
             maxDate = this.getDateString(d, m, y)
         } else btnDisable = true
-        if (this.state.month !== m)
+        if (this.state.month !== m || this.state.year !== y)
             fetchMonthData(this.props.tdata.id, m, y).then((data) => {
                 this.setState({
                     month: m,
@@ -92,7 +86,7 @@ class MonthView extends React.Component {
             }).catch(error => console.log(error));
     }
 
-    getData(date, month) {
+    getData = (date, month) => {
         let data = this.state.month_view_data;
         let item;
         let counter = 0
@@ -108,7 +102,7 @@ class MonthView extends React.Component {
         } : {valid_month: false}
     }
 
-    dateCellRender(value) {
+    dateCellRender = (value) => {
         var month = value.month()
         var month_data = this.getData(value.format('YYYY-MM-DD'), month)
         return (
@@ -120,7 +114,7 @@ class MonthView extends React.Component {
         );
     }
 
-    toggleEditor() {
+    toggleEditor = () => {
         const editorClosing = this.state.editor
         this.setState(prevState => {
                 return {
@@ -159,51 +153,37 @@ class MonthView extends React.Component {
             .catch(error => console.log(error));
     }
 
-    onSelect(value) {
+    onSelect = (value) => {
         let date = value.format('YYYY-MM-DD')
-        if (value.month() + 1 === this.state.month) {
+        if (value.month() + 1 === this.state.month && value.year() === this.state.year) {
             this.fetchSlotsForDate(date).then(() => this.toggleEditor())
         }
     }
 
-    disabledDate(value) {
+    disabledDate = (value) => {
         var d = new Date()
         return value._d < d
     }
 
-    fetchSoltData(tid, date) {
-        var URL = API.BASE_URL + format(API.SLOT_GET_API_URL, [tid, date])
-
-        return fetch(URL).then(response => response.json()).then(
-            data => {
-                this.setState({
-                    slotdata: data,
-                    date: date,
-                    slotStates: this.parseAvailableSlot(data),
-                    currentSlotStates: this.parseAvailableSlot(data),
-                    btnDisabled: true
-                });
-            }
-        )
-    }
-
-    parseAvailableSlot(slotData) {
+    parseAvailableSlot = (slotData) => {
         return slotData.map(slot => {
             return {
                 id: slot.id,
                 status: slot.slot.length > 0,
-                available_slot_id: slot.slot.length > 0 ? slot.slot[0].id : null
+                available_slot_id: slot.slot.length > 0 ? slot.slot[0].id : null,
+                start_time: slot.start_time
             }
         })
     }
 
-    updateSlotState = (id, status) => {
+    updateSlotState = (id) => {
         this.setState(prevState => {
             const newSlotStatus = prevState.currentSlotStates.map(slot => {
                 return {
                     id: slot.id,
-                    status: slot.id.toString() === id ? status : slot.status,
-                    available_slot_id: slot.available_slot_id
+                    status: slot.id.toString() === id ? !slot.status : slot.status,
+                    available_slot_id: slot.available_slot_id,
+                    start_time: slot.start_time
                 }
             })
             return {
@@ -213,7 +193,7 @@ class MonthView extends React.Component {
         })
     }
 
-    APICall = (addSlotsList, delSlotsList) => {
+    updateSlotAvailability = (addSlotsList, delSlotsList) => {
         if (addSlotsList.length > 0 && delSlotsList.length > 0) {
             addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
@@ -261,7 +241,7 @@ class MonthView extends React.Component {
         })
         const delSlots = changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id)
 
-        this.APICall(addSlots, delSlots)
+        this.updateSlotAvailability(addSlots, delSlots)
     }
 
     // --------------Bulk Editor-------------
@@ -319,7 +299,7 @@ class MonthView extends React.Component {
             let validSlotsMap = new Map()
             let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
             for (let i = 0; i < 7; i++) validSlotsMap[days[i]] = {}
-            data.map(slot => {
+            data.forEach(slot => {
                 validSlotsMap[days[slot.day]][slot.start_time] = slot.id
             })
             this.setState(() => {
@@ -366,7 +346,7 @@ class MonthView extends React.Component {
         const validSlots = this.state.validSlots
 
         let monthDataMap = new Map()
-        this.state.month_view_data.filter(slot => {
+        this.state.month_view_data.forEach(slot => {
             const mapID = slot.date + "/" + slot.validslot_id
             monthDataMap.set(mapID, true)
         })
@@ -402,12 +382,91 @@ class MonthView extends React.Component {
                 }
             }).then(() => {
                 fetchMonthData(this.props.tdata.id, this.state.month, this.state.year).then((data) => {
-                    this.setState({
-                        month_view_data: data,
+                    this.setState(prevState => {
+                        return {
+                            month_view_data: data,
+                            bulkEditor: !prevState.bulkEditor
+                        }
                     })
                 })
             }).catch(error => console.log(error));
         }
+    }
+
+    headerRender = ({value, type, onChange, onTypeChange}) => {
+        const start = 0;
+        const end = 12;
+        const monthOptions = [];
+
+        const current = value.clone();
+        const localeData = value.localeData();
+        const months = [];
+        for (let i = 0; i < 12; i++) {
+            current.month(i);
+            months.push(localeData.monthsShort(current));
+        }
+
+        for (let index = start; index < end; index++) {
+            monthOptions.push(
+                <Select.Option className="month-item" key={`${index}`}>
+                    {months[index]}
+                </Select.Option>,
+            );
+        }
+        const month = value.month();
+
+        const year = value.year();
+        const options = [];
+        for (let i = year - 10; i < year + 10; i += 1) {
+            options.push(
+                <Select.Option key={i} value={i} className="year-item">
+                    {i}
+                </Select.Option>,
+            );
+        }
+
+        return (
+            <div style={{padding: 8}}>
+                <Typography.Title level={2} style={{color: "#555555"}}>
+                    Manage Availability
+                </Typography.Title>
+                <Row gutter={8}>
+                    <Col>
+                        <Radio.Group size="small" onChange={e => onTypeChange(e.target.value)} value={type}>
+                            <Radio.Button value="month">Month</Radio.Button>
+                        </Radio.Group>
+                    </Col>
+                    <Col>
+                        <Select
+                            size="small"
+                            dropdownMatchSelectWidth={false}
+                            className="my-year-select"
+                            onChange={newYear => {
+                                const now = value.clone().year(newYear);
+                                onChange(now);
+                            }}
+                            value={String(year)}
+                        >
+                            {options}
+                        </Select>
+                    </Col>
+                    <Col>
+                        <Select
+                            size="small"
+                            dropdownMatchSelectWidth={false}
+                            value={String(month)}
+                            onChange={selectedMonth => {
+                                const newValue = value.clone();
+                                newValue.month(parseInt(selectedMonth, 10));
+                                onChange(newValue);
+                            }}
+                        >
+                            {monthOptions}
+                        </Select>
+                    </Col>
+                </Row>
+            </div>
+        );
     }
 
     render() {
@@ -415,12 +474,14 @@ class MonthView extends React.Component {
             <div>
                 <Container fluid='md'>
                     <Calendar
+                        headerRender={this.headerRender}
                         dateCellRender={this.dateCellRender}
                         onPanelChange={this.onPanelChange}
                         onSelect={this.onSelect}
                         disabledDate={this.disabledDate}
                     />
                     <Button
+                        style={{margin: 5}}
                         variant="primary"
                         onClick={this.toggleBulkEditor}
                         disabled={this.state.bulkBtnDisabled}
@@ -430,7 +491,7 @@ class MonthView extends React.Component {
                     show={this.state.editor}
                     date={this.state.date}
                     tdata={this.props.tdata}
-                    slotdata={this.state.slotdata}
+                    slotdata={this.state.currentSlotStates}
                     slotDataFetched={this.state.slotdataFetched}
                     updateSlotState={this.updateSlotState}
                     handleSave={this.handleSave}
@@ -450,7 +511,6 @@ class MonthView extends React.Component {
                     handleSave={this.handleBulkSave}
                 />
                 }
-
             </div>
         )
     }

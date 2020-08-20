@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Modal, Input, Form, Col} from "react-bootstrap"
+import {Button, Modal, Form, Col} from "react-bootstrap"
 import SlotUnit from "./SlotUnit";
 
 const BulkEditor = props => {

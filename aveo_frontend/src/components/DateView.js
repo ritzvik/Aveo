@@ -1,10 +1,6 @@
-// Example Usage of DateView component
-// <DateView tdata={teacher object} date={"2020-08-20"} baseurl={"http://127.0.0.1:8000/"} />
-
 import React from 'react'
 import {Container} from "react-bootstrap"
 import SlotUnit from "./SlotUnit"
-
 
 class DateView extends React.Component {
     dayList = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -17,7 +13,7 @@ class DateView extends React.Component {
                     <SlotUnit
                         key={slot.id}
                         id={slot.id}
-                        marked={slot.slot.length > 0}
+                        marked={slot.status}
                         start_time={slot.start_time}
                         updateSlotState={this.props.updateSlotState}
                     />

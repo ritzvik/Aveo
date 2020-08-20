@@ -191,7 +191,7 @@ class MonthView extends React.Component {
         })
     }
 
-    updateSlotAvailablity = (addSlotsList, delSlotsList) => {
+    updateSlotAvailability = (addSlotsList, delSlotsList) => {
         if (addSlotsList.length > 0 && delSlotsList.length > 0) {
             addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
@@ -239,7 +239,7 @@ class MonthView extends React.Component {
         })
         const delSlots = changedSlots.filter(slot => !slot.status).map(slot => slot.available_slot_id)
 
-        this.updateSlotAvailablity(addSlots, delSlots)
+        this.updateSlotAvailability(addSlots, delSlots)
     }
 
     // --------------Bulk Editor-------------
@@ -297,7 +297,7 @@ class MonthView extends React.Component {
             let validSlotsMap = new Map()
             let days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
             for (let i = 0; i < 7; i++) validSlotsMap[days[i]] = {}
-            data.map(slot => {
+            data.forEach(slot => {
                 validSlotsMap[days[slot.day]][slot.start_time] = slot.id
             })
             this.setState(() => {
@@ -344,7 +344,7 @@ class MonthView extends React.Component {
         const validSlots = this.state.validSlots
 
         let monthDataMap = new Map()
-        this.state.month_view_data.filter(slot => {
+        this.state.month_view_data.forEach(slot => {
             const mapID = slot.date + "/" + slot.validslot_id
             monthDataMap.set(mapID, true)
         })
@@ -380,13 +380,17 @@ class MonthView extends React.Component {
                 }
             }).then(() => {
                 fetchMonthData(this.props.tdata.id, this.state.month, this.state.year).then((data) => {
-                    this.setState({
-                        month_view_data: data,
+                    this.setState(prevState => {
+                        return {
+                            month_view_data: data,
+                            bulkEditor: !prevState.bulkEditor
+                        }
                     })
                 })
             }).catch(error => console.log(error));
         }
     }
+
     headerRender = ({value, type, onChange, onTypeChange}) => {
         const start = 0;
         const end = 12;
@@ -418,9 +422,10 @@ class MonthView extends React.Component {
                 </Select.Option>,
             );
         }
+
         return (
             <div style={{padding: 8}}>
-                <Typography.Title level={2} style={{color:"#555555"}}>
+                <Typography.Title level={2} style={{color: "#555555"}}>
                     Manage Availability
                 </Typography.Title>
                 <Row gutter={8}>
@@ -474,7 +479,7 @@ class MonthView extends React.Component {
                         disabledDate={this.disabledDate}
                     />
                     <Button
-                        style={{margin:5}}
+                        style={{margin: 5}}
                         variant="primary"
                         onClick={this.toggleBulkEditor}
                         disabled={this.state.bulkBtnDisabled}
@@ -504,7 +509,6 @@ class MonthView extends React.Component {
                     handleSave={this.handleBulkSave}
                 />
                 }
-
             </div>
         )
     }

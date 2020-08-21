@@ -70,6 +70,7 @@ class MonthView extends React.Component {
             }
         })
     }
+
     onPanelChange = (value, mode) => {
         this.toggleLoader()
         const m = value.month() + 1
@@ -165,7 +166,7 @@ class MonthView extends React.Component {
                     });
                 }
             )
-            .catch(error => console.log(error));
+
     }
 
     onSelect = (value) => {
@@ -176,7 +177,7 @@ class MonthView extends React.Component {
                 .then(() => {
                     this.toggleEditor()
                     this.toggleLoader()
-                })
+                }).catch(error => console.log(error));
         }
     }
 

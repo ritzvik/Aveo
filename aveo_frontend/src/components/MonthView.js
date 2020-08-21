@@ -3,6 +3,7 @@ import {Calendar, Badge, Select, Col, Typography, Radio, Row} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
+import Loader from "./Loader";
 import BulkEditor from "./BulkEditor"
 import {Container, Button} from "react-bootstrap";
 import {fetchMonthData, fetchSoltData, addSlots, delSlots, fetchValidSlots} from "../APIs"
@@ -28,7 +29,9 @@ class MonthView extends React.Component {
             days: null,
             validSlots: null,
             markedCommonSLots: null,
-            bulkBtnDisabled: false
+            bulkBtnDisabled: false,
+
+            loader: true
         }
         this.componentDidMount = this.componentDidMount.bind(this)
     }
@@ -53,22 +56,33 @@ class MonthView extends React.Component {
                 minDate: minDate,
                 maxDate: maxDate
             })
-        }).catch(error => console.log(error));
+        }).then(() => this.fetchAndParseValidSlots())
+            .then(() => this.toggleLoader())
+            .catch(error => console.log(error));
         this.mapDays()
-        this.fetchAndParseValidSlots()
+
     }
 
+    toggleLoader = () => {
+        this.setState(prevState => {
+            return {
+                loader: !prevState.loader
+            }
+        })
+    }
     onPanelChange = (value, mode) => {
+        this.toggleLoader()
         const m = value.month() + 1
         const y = value.year()
         let minDate = null
         let maxDate = null
         let btnDisable = false
-        if (m > new Date().getMonth() + 1) {
-            minDate = this.getDateString(1, m, y)
-            let d = new Date(y, m, 0).getDate()
-            maxDate = this.getDateString(d, m, y)
-        } else if (m === new Date().getMonth() + 1) {
+        if ( (m > new Date().getMonth() + 1 && y === new Date().getFullYear())
+            || y > new Date().getFullYear()) {
+                minDate = this.getDateString(1, m, y)
+                let d = new Date(y, m, 0).getDate()
+                maxDate = this.getDateString(d, m, y)
+        } else if (m === new Date().getMonth() + 1 && y === new Date().getFullYear()) {
             minDate = this.getDateString(new Date().getDate(), m, y)
             let d = new Date(y, m, 0).getDate()
             maxDate = this.getDateString(d, m, y)
@@ -83,7 +97,7 @@ class MonthView extends React.Component {
                     maxDate: maxDate,
                     bulkBtnDisabled: btnDisable
                 })
-            }).catch(error => console.log(error));
+            }).then(() => this.toggleLoader).catch(error => console.log(error));
     }
 
     getData = (date, month) => {
@@ -124,6 +138,7 @@ class MonthView extends React.Component {
             }
         )
         if (editorClosing) {
+            this.toggleLoader()
             var d = new Date(this.state.date)
             var m = d.getMonth() + 1
             var y = d.getFullYear()
@@ -133,7 +148,7 @@ class MonthView extends React.Component {
                     month_view_data: data,
                     year: y,
                 })
-            }).catch(error => console.log(error));
+            }).then(() => this.toggleLoader()).catch(error => console.log(error));
         }
     }
 
@@ -154,9 +169,14 @@ class MonthView extends React.Component {
     }
 
     onSelect = (value) => {
+        this.toggleLoader()
         let date = value.format('YYYY-MM-DD')
         if (value.month() + 1 === this.state.month && value.year() === this.state.year) {
-            this.fetchSlotsForDate(date).then(() => this.toggleEditor())
+            this.fetchSlotsForDate(date)
+                .then(() => {
+                    this.toggleEditor()
+                    this.toggleLoader()
+                })
         }
     }
 
@@ -195,7 +215,7 @@ class MonthView extends React.Component {
 
     updateSlotAvailability = (addSlotsList, delSlotsList) => {
         if (addSlotsList.length > 0 && delSlotsList.length > 0) {
-            addSlots(JSON.stringify(addSlotsList)).then(response => {
+            return addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
                     console.log("Slots added")
                 }
@@ -207,23 +227,28 @@ class MonthView extends React.Component {
                             this.fetchSlotsForDate(this.state.date).catch(error => console.log(error));
                         }
                     }).catch(error => console.log(error));
-            }).catch(error => console.log(error));
+            }).then(() => this.toggleLoader()).catch(error => console.log(error));
         } else if (addSlotsList.length > 0) {
             addSlots(JSON.stringify(addSlotsList)).then(response => {
                 if (response.status === 201) {
                     console.log("Slots added")
                 }
-            }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
+            }).then(() => this.fetchSlotsForDate(this.state.date))
+                .then(() => this.toggleLoader())
+                .catch(error => console.log(error));
         } else if (delSlotsList.length > 0) {
             delSlots(this.props.tdata.id, JSON.stringify(delSlotsList)).then(response => {
                 if (response.status === 204) {
                     console.log("Slots deleted")
                 }
-            }).then(() => this.fetchSlotsForDate(this.state.date)).catch(error => console.log(error));
+            }).then(() => this.fetchSlotsForDate(this.state.date))
+                .then(() => this.toggleLoader())
+                .catch(error => console.log(error));
         }
     }
 
     handleSave = () => {
+        this.toggleLoader()
         const changedSlots = this.state.currentSlotStates.filter(slot => {
             const id = slot.id
             return slot.status !== this.state.slotStates.filter(slot => {
@@ -337,6 +362,7 @@ class MonthView extends React.Component {
     }
 
     handleBulkSave = (startDate, endDate) => {
+        this.toggleLoader()
         startDate = new Date(startDate)
         endDate = new Date(endDate)
         let date = new Date(startDate)
@@ -389,7 +415,10 @@ class MonthView extends React.Component {
                         }
                     })
                 })
-            }).catch(error => console.log(error));
+            }).then(() => this.toggleLoader()).catch(error => console.log(error));
+        } else {
+            this.toggleLoader()
+            alert("No slots to add. Either all slots are marked available or no valid slots available.")
         }
     }
 
@@ -511,6 +540,7 @@ class MonthView extends React.Component {
                     handleSave={this.handleBulkSave}
                 />
                 }
+                <Loader show={this.state.loader}/>
             </div>
         )
     }

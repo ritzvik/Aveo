@@ -35,37 +35,7 @@ import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
-class DateIterator(start: Date, endInclusive: Date, stepDays: Int) : Iterator<Date> {
-    private var currentDate = start
-    private var endDateInclusive = endInclusive
-    private var skipDays = stepDays
-
-    override fun hasNext(): Boolean {
-        return (currentDate.compareTo(endDateInclusive) <= 0)
-    }
-
-    override fun next(): Date {
-        var next = currentDate
-        currentDate = Date(currentDate.time + skipDays * 24 * 60 * 60 * 1000)
-        return next
-    }
-
-}
-
-fun DialogFragment.shortToast(msg: String) {
-    val t = Toast.makeText(context, msg, Toast.LENGTH_SHORT)
-    t.show()
-}
-
-class BulkAddDialog : DialogFragment() {
-
-    private var oneDayInMilliseconds: Long = 24 * 60 * 60 * 1000
-    private var validSlots: List<ValidSlot> = listOf()
-    private val smallDays = makeSmallDays()
-    private val triggerValidSlotView = MutableLiveData<Boolean>(false)
-    private var placeholderValidSlots = listOf<ValidSlot>()
-    private var alreadyAvailableSlots = listOf<AvailableSlot>()
-    private var alreadyAvailableSlotsFetched = false
+class BulkAddDialog : BulkDialog() {
 
     companion object {
 
@@ -80,164 +50,9 @@ class BulkAddDialog : DialogFragment() {
         }
     }
 
-    private fun displayTeacherName(id: Int, textView: TextView) {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getTeacherByID(id)
-
-        requestCall.enqueue(object : Callback<Teacher> {
-            override fun onResponse(call: Call<Teacher>?, response: Response<Teacher>?) {
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        val teacherByID = response.body()!!
-
-                        val teacherFullName =
-                            teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
-                        textView.text = teacherFullName
-
-                    } else { // application level failure
-                        shortToast("Failed to retrieve teacher by ID!")
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<Teacher>?, t: Throwable?) {
-                shortToast("Error Occurred " + t.toString())
-            }
-        })
-    }
-
-    private fun fetchAllAvailableSlotsByTeacherID(tID: Int) {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getAllAvailableSlotsByTeacherID(tID)
-
-        requestCall.enqueue(object : Callback<List<AvailableSlot>> {
-            override fun onFailure(call: Call<List<AvailableSlot>>?, t: Throwable?) {
-                shortToast("Available Slots by Teacher ID couldn't be fetched | " + t.toString())
-            }
-
-            override fun onResponse(
-                call: Call<List<AvailableSlot>>?,
-                response: Response<List<AvailableSlot>>?
-            ) {
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        alreadyAvailableSlots = response.body()!!
-                        alreadyAvailableSlotsFetched = true
-                        triggerValidSlotView.value = !(triggerValidSlotView.value!!)
-                    } else {
-                        shortToast("Available Slots by Teacher ID couldn't be fetched! ")
-                    }
-                }
-            }
-
-        })
-    }
-
-    private fun fetchAllValidSlots() {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val requestCall = teacherService.getAllValidSlots()
-
-        requestCall.enqueue(object : Callback<List<ValidSlot>> {
-            override fun onResponse(
-                call: Call<List<ValidSlot>>?,
-                response: Response<List<ValidSlot>>?
-            ) {
-                if (response != null) {
-                    if (response.isSuccessful) {
-                        validSlots = response.body()!!
-                        triggerValidSlotView.value = !(triggerValidSlotView.value!!)
-
-                    } else { // application level failure
-                        shortToast("Failed to retrieve valid slots!")
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<List<ValidSlot>>?, t: Throwable?) {
-                shortToast("Error Occurred" + t.toString())
-            }
-        })
-    }
-
-    private fun displayValidSlots() {
-        doAsync {
-            if (validSlots.isNotEmpty()) {
-
-                var timings = mutableListOf<String>()
-                var timingsTemp = mutableListOf<String>()
-                val placeholderValidSlotsMutable = mutableListOf<ValidSlot>()
-                var smallDaysSelected = smallDays.count { it.selected.value!! }
-
-                validSlots.forEach { s ->
-
-                    if (smallDays[s.day].selected.value!!) {
-                        timings.add(s.start_time!!)
-                    }
-                }
-                timings.forEach { t ->
-                    if (timings.count { it == t } == smallDaysSelected) {
-                        timingsTemp.add(t)
-                    }
-                }
-                timings = timingsTemp.toSet().toMutableList()
-
-                timings.forEach { t ->
-                    placeholderValidSlotsMutable.add(ValidSlot(-1, -1, t))
-                }
-                placeholderValidSlots = placeholderValidSlotsMutable.toList()
-
-                uiThread {
-                    val validSlotViewAdaptor = ValidSlotViewAdaptor(placeholderValidSlots)
-                    validSlotViewAdaptor.initializeAdaptor()
-                    slotSelectorRecyclerView.apply {
-                        layoutManager = LinearLayoutManager(activity)
-                        adapter = validSlotViewAdaptor
-                    }
-                }
-            }
-        }
-    }
-
-    private fun addNewAvailableSlots(tID: Int, newAvailableSlots: List<AvailableSlot>) {
-        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
-        val postRequest = teacherService.setAvailability(newAvailableSlots)
-
-        postRequest.enqueue(object : Callback<List<AvailableSlot>> {
-            override fun onFailure(call: Call<List<AvailableSlot>>?, t: Throwable?) {
-                shortToast("Error Occurred" + t.toString())
-            }
-
-            override fun onResponse(
-                call: Call<List<AvailableSlot>>?,
-                response: Response<List<AvailableSlot>>?
-            ) {
-                // Add Some code, currently crashing
-            }
-
-        })
-
-    }
-
-    private fun dateObjToDateString(date: Date): String {
-        var dateString = (date.year + 1900).toString() + "-"
-        dateString += (date.month + 1).toString().padStart(2, '0') + "-"
-        dateString += date.date.toString().padStart(2, '0')
-        return dateString
-    }
-
-    private fun dayOfWeek(date: Date): Int {
-        // 0 for Monday, 1 for Tuesday..... 6 for Sunday
-        return if (date.day == 0) {
-            6
-        } else {
-            (date.day - 1)
-        }
-    }
-
     @SuppressLint("SimpleDateFormat")
-    private fun executeSelections(startDateString: String, endDateString: String) {
+    private fun executeSelections(tID: Int, startDateString: String, endDateString: String) {
 
-        val tID = arguments?.getInt(KEY_TID)!!
         val newAvailableSlots = mutableListOf<AvailableSlot>()
         var startDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
         var endDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
@@ -256,18 +71,18 @@ class BulkAddDialog : DialogFragment() {
         val dateIter = DateIterator(startDate, endDate, 1)
         while (dateIter.hasNext()) {
             val d = dateIter.next()
-            val dString = dateObjToDateString(d)
+            val dString = super.dateObjToDateString(d)
 
-            if (smallDays[dayOfWeek(d)].selected.value!!) {
-                placeholderValidSlots.forEach { pvs ->
+            if (super.smallDays[super.dayOfWeek(d)].selected.value!!) {
+                super.placeholderValidSlots.forEach { pvs ->
                     if (pvs.selectedValidSlotViewHolder) {
                         val start_time = pvs.start_time
-                        var validSlotObject = validSlots.find { s ->
-                            (s.start_time == start_time && s.day == dayOfWeek(d))
+                        var validSlotObject = super.validSlots.find { s ->
+                            (s.start_time == start_time && s.day == super.dayOfWeek(d))
                         }
                         var validSlotID = validSlotObject!!.id
                         val newAvailableSlot = AvailableSlot(null, dString, 1, tID, validSlotID)
-                        val alreadyAvailableSlot = alreadyAvailableSlots.find { aas ->
+                        val alreadyAvailableSlot = super.alreadyAvailableSlots.find { aas ->
                             (aas.date == dString && aas.validslot_id == validSlotID)
                         }
                         if (alreadyAvailableSlot == null) {
@@ -278,7 +93,7 @@ class BulkAddDialog : DialogFragment() {
             }
         }
 
-        addNewAvailableSlots(tID, newAvailableSlots.toList())
+        super.addNewAvailableSlots(tID, newAvailableSlots.toList())
 
         if (newAvailableSlots.isNotEmpty()) {
             GlobalObjects.triggerMonthViewUpdate.value =
@@ -300,90 +115,34 @@ class BulkAddDialog : DialogFragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val tID = arguments?.getInt(KEY_TID)!!
-        displayTeacherName(tID, view.findViewById<TextView>(R.id.dialogTextView))
-        fetchAllValidSlots()
-        fetchAllAvailableSlotsByTeacherID(tID)
+        super.displayTeacherName(tID, view.findViewById<TextView>(R.id.dialogTextView))
+        super.fetchAllValidSlots()
+        super.fetchAllAvailableSlotsByTeacherID(tID)
 
-        val daySelectAdaptor = DaySelectAdaptor(smallDays)
+        val daySelectAdaptor = DaySelectAdaptor(super.smallDays)
         daySelectAdaptor.initializeAdaptor()
         daySelectorRecyclerView.apply {
             layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
             adapter = daySelectAdaptor
         }
 
-        smallDays.forEach { d ->
-            d.selected.observe(viewLifecycleOwner, Observer { newSelectedStatus ->
-                displayValidSlots()
-            })
-        }
-        triggerValidSlotView.observe(viewLifecycleOwner, Observer { t ->
-            displayValidSlots()
-        })
+        super.setObserversToRefreshValidSlots()
 
-        val startDateButton = view.findViewById<Button>(R.id.startDateButton)
-        val endDateButton = view.findViewById<Button>(R.id.endDateButton)
         val startDateView = view.findViewById<TextView>(R.id.startDate)
         val endDateView = view.findViewById<TextView>(R.id.endDate)
         val doneButton = view.findViewById<Button>(R.id.buttonBulkAdd)
 
-        startDateButton.setOnClickListener { v ->
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-
-
-            val dpd = DatePickerDialog(
-                requireContext(),
-                DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-
-                    // Display Selected date in textbox
-                    startDateView.text = "" + year + "-" + (monthOfYear + 1).toString()
-                        .padStart(2, '0') + "-" + dayOfMonth
-
-                },
-                year,
-                month,
-                day
-            )
-
-            dpd.datePicker.minDate = System.currentTimeMillis() - 1000
-            dpd.datePicker.maxDate = System.currentTimeMillis() + (oneDayInMilliseconds * 30)
-            dpd.show()
-        }
-
-        endDateButton.setOnClickListener { v ->
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-
-
-            val dpd = DatePickerDialog(
-                requireContext(),
-                DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-
-                    // Display Selected date in textbox
-                    endDateView.text = "" + year + "-" + (monthOfYear + 1).toString()
-                        .padStart(2, '0') + "-" + dayOfMonth
-
-                },
-                year,
-                month,
-                day
-            )
-
-            dpd.datePicker.minDate = System.currentTimeMillis() - 1000
-            dpd.datePicker.maxDate = System.currentTimeMillis() + (oneDayInMilliseconds * 30)
-            dpd.show()
-        }
+        super.setUpDatePickers(
+            System.currentTimeMillis() - 1000,
+            System.currentTimeMillis() + (super.oneDayInMilliseconds * 30)
+        )
 
         doneButton.setOnClickListener { v ->
             val startDateString = startDateView.text!!.toString()
             val endDateString = endDateView.text!!.toString()
 
-            if (validSlots.isNotEmpty() && alreadyAvailableSlotsFetched) {
-                executeSelections(startDateString, endDateString)
+            if (super.validSlots.isNotEmpty() && super.alreadyAvailableSlotsFetched) {
+                executeSelections(tID, startDateString, endDateString)
             }
 
             val fm = view.findFragment<BulkAddDialog>()
@@ -392,13 +151,5 @@ class BulkAddDialog : DialogFragment() {
 
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
     }
 }

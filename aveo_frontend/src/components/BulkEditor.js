@@ -99,11 +99,20 @@ const BulkEditor = props => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={props.handleClose}>
+                    <Button
+                        variant="secondary"
+                        onClick={props.handleClose}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={saveChanges}>
+                    <Button
+                        variant="primary"
+                        onClick={saveChanges}>
                         Save Changes
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => props.handleDelete(startDate, endDate)}>
+                        Delete
                     </Button>
                 </Modal.Footer>
             </Modal>

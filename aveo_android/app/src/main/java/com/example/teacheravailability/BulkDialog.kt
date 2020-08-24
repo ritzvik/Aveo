@@ -60,7 +60,7 @@ open class BulkDialog : DialogFragment() {
     protected var alreadyAvailableSlotsFetched = false
 
 
-    protected fun displayTeacherName(id: Int, textView: TextView) {
+    protected fun displayTeacherName(id: Int, textView: TextView, postString: String? = null) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val requestCall = teacherService.getTeacherByID(id)
 
@@ -72,7 +72,12 @@ open class BulkDialog : DialogFragment() {
 
                         val teacherFullName =
                             teacherByID.first_name.toString() + " " + teacherByID.last_name.toString()
-                        textView.text = teacherFullName
+
+                        postString?.let {
+                            textView.text = teacherFullName + postString
+                        } ?: run {
+                            textView.text = teacherFullName
+                        }
 
                     } else { // application level failure
                         shortToast("Failed to retrieve teacher by ID!")

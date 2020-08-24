@@ -85,7 +85,11 @@ class BulkDelDialog : BulkDialog() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val tID = arguments?.getInt(KEY_TID)!!
-        super.displayTeacherName(tID, view.findViewById<TextView>(R.id.dialogTextView))
+        super.displayTeacherName(
+            tID,
+            view.findViewById<TextView>(R.id.dialogTextView),
+            " | Bulk Delete"
+        )
         super.fetchAllValidSlots()
         super.fetchAllAvailableSlotsByTeacherID(tID)
 

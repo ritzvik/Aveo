@@ -63,7 +63,6 @@ def availableslot_teacher_id_month_year(request, teacher_id, month, year):
 @api_view(["DELETE", "GET"])
 def availableslot_teacher_id_list(request, teacher_id):
     objs = AvailableSlot.objects.filter(teacher_id=teacher_id, id__in=request.data)
-    print(objs)
     if len(objs) < len(request.data):
         return JsonResponse({'message': 'Slots does\'nt exist'}, status=status.HTTP_404_NOT_FOUND)
 

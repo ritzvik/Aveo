@@ -4,7 +4,7 @@ import SlotUnit from "./SlotUnit";
 
 const BulkEditor = props => {
     const [startDate, setStartDate] = useState(props.minDate)
-    const [endDate, setEndtDate] = useState(props.maxDate)
+    const [endDate, setEndDate] = useState(props.maxDate)
 
     const StyleSheet = {
         Container: {
@@ -89,7 +89,7 @@ const BulkEditor = props => {
                                     type="date"
                                     min={startDate}
                                     max={props.maxDate}
-                                    onChange={e => setEndtDate(e.target.value)}/></Col>
+                                    onChange={e => setEndDate(e.target.value)}/></Col>
                         </Form.Row>
                         <Form.Row><Col>{checkBoxDays}</Col></Form.Row>
                         <Form.Row>
@@ -99,11 +99,20 @@ const BulkEditor = props => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={props.handleClose}>
+                    <Button
+                        variant="secondary"
+                        onClick={props.handleClose}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={saveChanges}>
-                        Save Changes
+                    <Button
+                        variant="primary"
+                        onClick={saveChanges}>
+                        Add Slots
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => props.handleDelete(startDate, endDate)}>
+                        Delete Slots
                     </Button>
                 </Modal.Footer>
             </Modal>

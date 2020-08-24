@@ -1,12 +1,12 @@
 import React from 'react';
-import {Calendar, Badge, Select, Col, Typography, Radio, Row} from 'antd';
+import {Badge, Calendar, Col, Radio, Row, Select, Typography} from 'antd';
 import 'antd/dist/antd.css';
 
 import Editor from "./Editor"
 import Loader from "./Loader";
 import BulkEditor from "./BulkEditor"
-import {Container, Button} from "react-bootstrap";
-import {fetchMonthData, fetchSoltData, addSlots, delSlots, fetchValidSlots} from "../APIs"
+import {Button, Container} from "react-bootstrap";
+import {addSlots, delSlots, fetchMonthData, fetchSoltData, fetchValidSlots} from "../APIs"
 
 class MonthView extends React.Component {
     constructor(props) {
@@ -422,6 +422,63 @@ class MonthView extends React.Component {
         }
     }
 
+    handleBulkDelete = (startDate, endDate) => {
+        this.toggleLoader()
+        startDate = new Date(startDate)
+        endDate = new Date(endDate)
+        let date = new Date(startDate)
+        let days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
+        const markedSlots = this.state.markedCommonSLots
+        const markedDays = this.state.days.filter(day => day.marked)
+        const validSlots = this.state.validSlots
+
+        let monthDataMap = new Map()
+        this.state.month_view_data.forEach(slot => {
+            const mapID = slot.date + "/" + slot.validslot_id
+            monthDataMap.set(mapID, slot.id)
+        })
+        let deleteSlots = []
+        while (date <= endDate) {
+            const d = date.getDate()
+            const day = days[date.getDay()]
+            const m = date.getMonth() + 1
+            const y = date.getFullYear()
+            const dateString = this.getDateString(d, m, y)
+            const validDay = markedDays.filter(dayItem => dayItem.day === day)
+
+            if (validDay.length > 0) {
+                deleteSlots = [...deleteSlots, ...markedSlots.filter(slot => {
+                    const validSlotsID = validSlots[day][slot.start_time]
+                    return slot.marked && monthDataMap.has(dateString + "/" + validSlotsID)
+                }).map(slot => {
+                    const validSlotsID = validSlots[day][slot.start_time]
+                    return monthDataMap.get(dateString + "/" + validSlotsID)
+                })]
+            }
+            date = new Date(date.setDate(date.getDate() + 1))
+        }
+
+        if (deleteSlots.length > 0) {
+            delSlots(this.props.tdata.id, JSON.stringify(deleteSlots)).then(response => {
+                if (response.status === 204) {
+                    console.log("Slots Deleted")
+                }
+            }).then(() => {
+                fetchMonthData(this.props.tdata.id, this.state.month, this.state.year).then((data) => {
+                    this.setState(prevState => {
+                        return {
+                            month_view_data: data,
+                            bulkEditor: !prevState.bulkEditor
+                        }
+                    })
+                })
+            }).then(() => this.toggleLoader()).catch(error => console.log(error));
+        } else {
+            this.toggleLoader()
+            alert("No slots to delete. Either no slots are marked available or no valid slots.")
+        }
+    }
+
     headerRender = ({value, type, onChange, onTypeChange}) => {
         const start = 0;
         const end = 12;
@@ -514,7 +571,7 @@ class MonthView extends React.Component {
                         variant="primary"
                         onClick={this.toggleBulkEditor}
                         disabled={this.state.bulkBtnDisabled}
-                    >Add Availabilities for Month</Button>
+                    >Add/Delete Availabilities for Month</Button>
                 </Container>
                 <Editor
                     show={this.state.editor}
@@ -538,6 +595,7 @@ class MonthView extends React.Component {
                     commonSlots={this.state.markedCommonSLots}
                     handleClose={this.toggleBulkEditor}
                     handleSave={this.handleBulkSave}
+                    handleDelete={this.handleBulkDelete}
                 />
                 }
                 <Loader show={this.state.loader}/>

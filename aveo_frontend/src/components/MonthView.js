@@ -437,7 +437,6 @@ class MonthView extends React.Component {
             const mapID = slot.date + "/" + slot.validslot_id
             monthDataMap.set(mapID, slot.id)
         })
-        console.log(monthDataMap)
         let deleteSlots = []
         while (date <= endDate) {
             const d = date.getDate()

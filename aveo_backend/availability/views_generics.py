@@ -70,14 +70,16 @@ def availableslot_teacher_id_month_year(request, teacher_id, month, year):
 def availableslot_teacher_id_list(request, teacher_id):
     objs = AvailableSlot.objects.filter(teacher_id=teacher_id, id__in=request.data)
     if len(objs) < len(request.data):
-        return JsonResponse({'message': 'Slots does\'nt exist'}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(
+            {"message": "Slots does'nt exist"}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    if request.method == 'DELETE':
+    if request.method == "DELETE":
         objs.delete()
         cache_key = "availableslot_tid_{}".format(teacher_id)
         cache.delete(cache_key)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    elif request.method == 'GET':
+    elif request.method == "GET":
         if len(request.data) < 1:
             objs = AvailableSlot.objects.filter()
         serializer = AvailableSlotSerializer(objs, many=True)
@@ -104,12 +106,31 @@ class CreateViewAvailableSlot(generics.ListCreateAPIView):
     queryset = AvailableSlot.objects.all()
     serializer_class = AvailableSlotSerializer
 
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        try:
+            if isinstance(data, list):
+                tIDs = list()
+                for d in data:
+                    tIDs.append(d["teacher_id"])
+                tIDs = list(set(tIDs))
+                for tID in tIDs:
+                    cache_key = "availableslot_tid_{}".format(tID)
+                    cache.delete(cache_key)
+            else:
+                tID = data["teacher_id"]
+                cache_key = "availableslot_tid_{}".format(tID)
+                cache.delete(cache_key)
+        except:
+            pass
+        return super().post(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save()
 
     def get_serializer(self, *args, **kwargs):
-        if isinstance(kwargs.get('data', {}), list):
-            kwargs['many'] = True
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
         return super(CreateViewAvailableSlot, self).get_serializer(*args, **kwargs)
 
 

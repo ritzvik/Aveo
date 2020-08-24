@@ -14,6 +14,7 @@ from .serializers import (
 from .models import Teacher, AvailableSlot, ValidSlot
 
 from django.db.models import Prefetch
+from django.core.cache import cache
 
 
 def day_from_date(datestring: str):
@@ -23,9 +24,14 @@ def day_from_date(datestring: str):
 
 @api_view(["GET"])
 def availableslot_teacher_id(request, teacher_id):
-    objs = AvailableSlot.objects.filter(teacher_id__id=teacher_id)
-    serializer = AvailableSlotSerializer(objs, many=True)
-    return Response(serializer.data)
+    cache_key = "availableslot_tid_{}".format(teacher_id)
+    data = cache.get(cache_key)
+    if data is None:
+        objs = AvailableSlot.objects.filter(teacher_id__id=teacher_id)
+        serializer = AvailableSlotSerializer(objs, many=True)
+        data = serializer.data
+        cache.set(cache_key, data)
+    return Response(data)
 
 
 @api_view(["GET"])
@@ -68,6 +74,8 @@ def availableslot_teacher_id_list(request, teacher_id):
 
     if request.method == 'DELETE':
         objs.delete()
+        cache_key = "availableslot_tid_{}".format(teacher_id)
+        cache.delete(cache_key)
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == 'GET':
         if len(request.data) < 1:

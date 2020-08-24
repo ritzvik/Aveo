@@ -2,17 +2,12 @@ package com.example.teacheravailability
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.findFragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -25,14 +20,12 @@ import com.example.teacheravailability.models.Teacher
 import com.example.teacheravailability.models.ValidSlot
 import com.example.teacheravailability.services.ServiceBuilder
 import com.example.teacheravailability.services.TeacherService
-import kotlinx.android.synthetic.main.fragment_bulk_add.*
+import kotlinx.android.synthetic.main.fragment_bulk.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.util.*
 
 class DateIterator(start: Date, endInclusive: Date, stepDays: Int) : Iterator<Date> {
@@ -221,6 +214,26 @@ open class BulkDialog : DialogFragment() {
 
     }
 
+    protected fun delAvailableSlots(tID: Int, delSlotList: List<Int>) {
+        val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
+        val deleteRequest = teacherService.delAvailability(delSlotList, tID)
+
+        deleteRequest.enqueue(object : Callback<Void> {
+            override fun onFailure(call: Call<Void>?, t: Throwable?) {
+                shortToast("Error Occurred" + t.toString())
+            }
+
+            override fun onResponse(
+                call: Call<Void>?,
+                response: Response<Void>?
+            ) {
+                // Add some code
+            }
+
+        })
+    }
+
+
     @SuppressLint("SetTextI18n")
     protected fun setUpDatePicker(
         button: Button,
@@ -279,6 +292,14 @@ open class BulkDialog : DialogFragment() {
 
         setUpDatePicker(startDateButton!!, startDateView, minDate, maxDate)
         setUpDatePicker(endDateButton!!, endDateView, minDate, maxDate)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_bulk, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

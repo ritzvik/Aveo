@@ -14,16 +14,16 @@ import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
-class BulkAddDialog : BulkDialog() {
+class BulkDelDialog : BulkDialog() {
 
     companion object {
 
         private const val KEY_TID = "KET_TID"
 
-        fun newInstance(tID: Int): BulkAddDialog {
+        fun newInstance(tID: Int): BulkDelDialog {
             val args = Bundle()
             args.putInt(KEY_TID, tID)
-            val fragment = BulkAddDialog()
+            val fragment = BulkDelDialog()
             fragment.arguments = args
             return fragment
         }
@@ -32,7 +32,7 @@ class BulkAddDialog : BulkDialog() {
     @SuppressLint("SimpleDateFormat")
     private fun executeSelections(tID: Int, startDateString: String, endDateString: String) {
 
-        val newAvailableSlots = mutableListOf<AvailableSlot>()
+        val delList = mutableListOf<Int>()
         var startDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
         var endDate: Date = SimpleDateFormat("yyyy-MM-dd").parse("2020-12-20")!!
 
@@ -56,25 +56,24 @@ class BulkAddDialog : BulkDialog() {
                 super.placeholderValidSlots.forEach { pvs ->
                     if (pvs.selectedValidSlotViewHolder) {
                         val start_time = pvs.start_time
-                        var validSlotObject = super.validSlots.find { s ->
+                        val validSlotObject = super.validSlots.find { s ->
                             (s.start_time == start_time && s.day == super.dayOfWeek(d))
                         }
-                        var validSlotID = validSlotObject!!.id
-                        val newAvailableSlot = AvailableSlot(null, dString, 1, tID, validSlotID)
+                        val validSlotID = validSlotObject!!.id
                         val alreadyAvailableSlot = super.alreadyAvailableSlots.find { aas ->
                             (aas.date == dString && aas.validslot_id == validSlotID)
                         }
-                        if (alreadyAvailableSlot == null) {
-                            newAvailableSlots.add(newAvailableSlot)
+                        alreadyAvailableSlot?.let {
+                            delList.add(alreadyAvailableSlot.id!!)
                         }
                     }
                 }
             }
         }
 
-        super.addNewAvailableSlots(tID, newAvailableSlots.toList())
+        super.delAvailableSlots(tID, delList.toList())
 
-        if (newAvailableSlots.isNotEmpty()) {
+        if (delList.isNotEmpty()) {
             GlobalObjects.triggerMonthViewUpdate.value =
                 !(GlobalObjects.triggerMonthViewUpdate.value!!)
         }
@@ -103,10 +102,7 @@ class BulkAddDialog : BulkDialog() {
         val endDateView = view.findViewById<TextView>(R.id.endDate)
         val doneButton = view.findViewById<Button>(R.id.buttonBulkAdd)
 
-        super.setUpDatePickers(
-            System.currentTimeMillis() - 1000,
-            System.currentTimeMillis() + (super.oneDayInMilliseconds * 30)
-        )
+        super.setUpDatePickers(System.currentTimeMillis() - 1000, null)
 
         doneButton.setOnClickListener { v ->
             val startDateString = startDateView.text!!.toString()
@@ -116,7 +112,7 @@ class BulkAddDialog : BulkDialog() {
                 executeSelections(tID, startDateString, endDateString)
             }
 
-            val fm = view.findFragment<BulkAddDialog>()
+            val fm = view.findFragment<BulkDelDialog>()
             fm.dismiss()
         }
 

@@ -87,13 +87,14 @@ def availableslot_teacher_id_list(request, teacher_id: int):
         )
 
     if request.method == "DELETE":
-        year_months = list(set([date_to_ints(obj.date.strftime("%Y-%m-%d"))[:2] for obj in objs]))
-        objs.delete()
+        data = AvailableSlotSerializer(objs, many=True).data
+        year_months = list(set([date_to_ints(d["date"])[:2] for d in data]))
         cache_key = "availableslot_tid_{}".format(teacher_id)
         cache.delete(cache_key)
         for y, m in year_months:
             cache_key = "availableslot_tid_{}_m_{}_y_{}".format(teacher_id, m, y)
             cache.delete(cache_key)
+        objs.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == "GET":
         if len(request.data) < 1:

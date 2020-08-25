@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.teacheravailability.adaptors.DaySelectAdaptor
 import com.example.teacheravailability.models.AvailableSlot
@@ -72,7 +71,7 @@ class BulkAddDialog : BulkDialog() {
             }
         }
 
-        super.addNewAvailableSlots(tID, newAvailableSlots.toList())
+        super.addNewAvailableSlotsAndClose(tID, newAvailableSlots.toList())
 
         if (newAvailableSlots.isNotEmpty()) {
             GlobalObjects.triggerMonthViewUpdate.value =

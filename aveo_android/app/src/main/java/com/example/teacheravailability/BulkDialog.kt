@@ -200,7 +200,7 @@ open class BulkDialog : DialogFragment() {
         }
     }
 
-    protected fun addNewAvailableSlots(tID: Int, newAvailableSlots: List<AvailableSlot>) {
+    protected fun addNewAvailableSlotsAndClose(tID: Int, newAvailableSlots: List<AvailableSlot>) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val postRequest = teacherService.setAvailability(newAvailableSlots)
 
@@ -221,7 +221,7 @@ open class BulkDialog : DialogFragment() {
 
     }
 
-    protected fun delAvailableSlots(tID: Int, delSlotList: List<Int>) {
+    protected fun delAvailableSlotsAndClose(tID: Int, delSlotList: List<Int>) {
         val teacherService = ServiceBuilder.buildService(TeacherService::class.java)
         val deleteRequest = teacherService.delAvailability(delSlotList, tID)
 

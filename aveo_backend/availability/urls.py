@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views_generics
+from .seed import seed
 
 prefix = "ta2/api/"
 
 urlpatterns = [
+    path("{}seed/".format(prefix), seed),
     path("{}teacher/".format(prefix), views_generics.CreateViewTeacher.as_view()),
     path("{}teacher/<int:pk>/".format(prefix), views_generics.DetailsViewTeacher.as_view()),
     path("{}validslot/".format(prefix), views_generics.CreateViewValidSlot.as_view()),

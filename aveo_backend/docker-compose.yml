@@ -1,0 +1,48 @@
+version: '3'
+  
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+  
+  redis:
+    restart: always
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+  
+  migration:
+    build: .
+    command: python manage.py migrate
+    environment:
+      - DPOSTGRES_HOST=db
+      - DREDIS_HOST=redis
+    volumes:
+      - .:/code
+    links:
+      - db
+    depends_on:
+      - db
+  
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DPOSTGRES_HOST=db
+      - DREDIS_HOST=redis
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    links:
+      - db
+      - redis
+    depends_on:
+      - db
+      - redis
+      - migration

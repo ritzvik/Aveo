@@ -80,19 +80,29 @@ WSGI_APPLICATION = 'aveo_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+DPOSTGRES_USER = os.environ.get("DPOSTGRES_USER", "postgres")
+DPOSTGRES_PASS = os.environ.get("DPOSTGRES_PASS", "postgres")
+DPOSTGRES_HOST = os.environ.get("DPOSTGRES_HOST", "http://localhost")
+DPOSTGRES_PORT = int(os.environ.get("DPOSTGRES_PORT", "5432"))
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': DPOSTGRES_USER,
+        'PASSWORD': DPOSTGRES_PASS,
+        'HOST': DPOSTGRES_HOST,
+        'PORT': DPOSTGRES_PORT,
     }
 }
 
+
 ## Cache
 
+DREDIS_HOST = os.environ.get("DREDIS_HOST", "127.0.0.1")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://{}:6379/1".format(DREDIS_HOST),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

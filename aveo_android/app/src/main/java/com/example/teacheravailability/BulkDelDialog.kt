@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.teacheravailability.adaptors.DaySelectAdaptor
-import com.example.teacheravailability.models.AvailableSlot
 import kotlinx.android.synthetic.main.fragment_bulk.*
 import java.lang.Exception
 import java.text.SimpleDateFormat
@@ -71,7 +69,7 @@ class BulkDelDialog : BulkDialog() {
             }
         }
 
-        super.delAvailableSlots(tID, delList.toList())
+        super.delAvailableSlotsAndClose(tID, delList.toList())
 
         if (delList.isNotEmpty()) {
             GlobalObjects.triggerMonthViewUpdate.value =
@@ -116,8 +114,7 @@ class BulkDelDialog : BulkDialog() {
                 executeSelections(tID, startDateString, endDateString)
             }
 
-            val fm = view.findFragment<BulkDelDialog>()
-            fm.dismiss()
+            // super.closeDialogBox()
         }
 
 

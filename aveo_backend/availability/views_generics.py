@@ -22,6 +22,11 @@ def day_from_date(datestring: str):
     return date_obj.weekday()
 
 
+def date_to_ints(datestring: str):
+    date_obj = datetime.strptime(datestring, "%Y-%m-%d")
+    return (date_obj.year, date_obj.month, date_obj.day)
+
+
 @api_view(["GET"])
 def availableslot_teacher_id(request, teacher_id):
     cache_key = "availableslot_tid_{}".format(teacher_id)
@@ -48,26 +53,33 @@ def availableslot_teacher_id_date(request, teacher_id, date):
 
 
 @api_view(["GET"])
-def availableslot_teacher_id_month_year(request, teacher_id, month, year):
+def availableslot_teacher_id_month_year(
+    request, teacher_id: int, month: int, year: int
+):
     def _enddate(month: int, year: int):
         enddate_lists = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         if year % 4 == 0:
             enddate_lists[1] = 29
         return enddate_lists[month - 1]
 
-    month = str(month).zfill(2)
-    year = str(year).zfill(4)
-    startdate = "{}-{}-01".format(year, month)
-    enddate = "{}-{}-{}".format(year, month, str(_enddate(int(month), int(year))))
-    objs = AvailableSlot.objects.filter(
-        teacher_id__id=teacher_id, date__gte=startdate, date__lte=enddate
-    )
-    serializer = AvailableSlotSerializer(objs, many=True)
-    return Response(serializer.data)
+    cache_key = "availableslot_tid_{}_m_{}_y_{}".format(teacher_id, month, year)
+    data = cache.get(cache_key)
+    if data is None:
+        month = str(month).zfill(2)
+        year = str(year).zfill(4)
+        startdate = "{}-{}-01".format(year, month)
+        enddate = "{}-{}-{}".format(year, month, str(_enddate(int(month), int(year))))
+        objs = AvailableSlot.objects.filter(
+            teacher_id__id=teacher_id, date__gte=startdate, date__lte=enddate
+        )
+        serializer = AvailableSlotSerializer(objs, many=True)
+        data = serializer.data
+        cache.set(cache_key, data)
+    return Response(data)
 
 
 @api_view(["DELETE", "GET"])
-def availableslot_teacher_id_list(request, teacher_id):
+def availableslot_teacher_id_list(request, teacher_id: int):
     objs = AvailableSlot.objects.filter(teacher_id=teacher_id, id__in=request.data)
     if len(objs) < len(request.data):
         return JsonResponse(
@@ -75,9 +87,13 @@ def availableslot_teacher_id_list(request, teacher_id):
         )
 
     if request.method == "DELETE":
+        year_months = list(set([date_to_ints(obj.date.strftime("%Y-%m-%d"))[:2] for obj in objs]))
         objs.delete()
         cache_key = "availableslot_tid_{}".format(teacher_id)
         cache.delete(cache_key)
+        for y, m in year_months:
+            cache_key = "availableslot_tid_{}_m_{}_y_{}".format(teacher_id, m, y)
+            cache.delete(cache_key)
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == "GET":
         if len(request.data) < 1:
@@ -110,17 +126,28 @@ class CreateViewAvailableSlot(generics.ListCreateAPIView):
         data = request.data
         try:
             if isinstance(data, list):
-                tIDs = list()
-                for d in data:
-                    tIDs.append(d["teacher_id"])
-                tIDs = list(set(tIDs))
+                tIDs = list(set([d["teacher_id"] for d in data]))
                 for tID in tIDs:
                     cache_key = "availableslot_tid_{}".format(tID)
                     cache.delete(cache_key)
+                id_year_months = list(
+                    set(
+                        [
+                            ((d["teacher_id"],) + date_to_ints(d["date"])[:2])
+                            for d in data
+                        ]
+                    )
+                )
+                for tID, y, m in id_year_months:
+                    cache_key = "availableslot_tid_{}_m_{}_y_{}".format(tID, m, y)
+                    cache.delete(cache_key)
             else:
                 tID = data["teacher_id"]
-                cache_key = "availableslot_tid_{}".format(tID)
-                cache.delete(cache_key)
+                y, m = date_to_ints(data["date"])[:2]
+                cache_key1 = "availableslot_tid_{}".format(tID)
+                cache_key2 = "availableslot_tid_{}_m_{}_y_{}".format(tID, m, y)
+                cache.delete(cache_key1)
+                cache.delete(cache_key2)
         except:
             pass
         return super().post(request, *args, **kwargs)

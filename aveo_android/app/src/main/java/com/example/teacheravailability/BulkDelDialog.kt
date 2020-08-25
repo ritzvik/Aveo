@@ -116,8 +116,7 @@ class BulkDelDialog : BulkDialog() {
                 executeSelections(tID, startDateString, endDateString)
             }
 
-            val fm = view.findFragment<BulkDelDialog>()
-            fm.dismiss()
+            // super.closeDialogBox()
         }
 
 

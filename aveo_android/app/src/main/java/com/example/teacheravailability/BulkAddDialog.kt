@@ -120,8 +120,7 @@ class BulkAddDialog : BulkDialog() {
                 executeSelections(tID, startDateString, endDateString)
             }
 
-            val fm = view.findFragment<BulkAddDialog>()
-            fm.dismiss()
+            // super.closeDialogBox()
         }
 
 

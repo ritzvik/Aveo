@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.findFragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -206,13 +207,14 @@ open class BulkDialog : DialogFragment() {
         postRequest.enqueue(object : Callback<List<AvailableSlot>> {
             override fun onFailure(call: Call<List<AvailableSlot>>?, t: Throwable?) {
                 shortToast("Error Occurred" + t.toString())
+                closeDialogBox()
             }
 
             override fun onResponse(
                 call: Call<List<AvailableSlot>>?,
                 response: Response<List<AvailableSlot>>?
             ) {
-                // Add Some code, currently crashing
+                closeDialogBox()
             }
 
         })
@@ -226,13 +228,14 @@ open class BulkDialog : DialogFragment() {
         deleteRequest.enqueue(object : Callback<Void> {
             override fun onFailure(call: Call<Void>?, t: Throwable?) {
                 shortToast("Error Occurred" + t.toString())
+                closeDialogBox()
             }
 
             override fun onResponse(
                 call: Call<Void>?,
                 response: Response<Void>?
             ) {
-                // Add some code
+                closeDialogBox()
             }
 
         })
@@ -297,6 +300,11 @@ open class BulkDialog : DialogFragment() {
 
         setUpDatePicker(startDateButton!!, startDateView, minDate, maxDate)
         setUpDatePicker(endDateButton!!, endDateView, minDate, maxDate)
+    }
+
+    protected fun closeDialogBox() {
+        val fm = view?.findFragment<BulkDialog>()
+        fm?.dismiss()
     }
 
     override fun onCreateView(
